@@ -8,6 +8,15 @@ namespace Rester
 
     public static partial class HttpClientExtensions
     {
+        public static Task<IHttpResponse<T>> GetAsync<T>(
+            this HttpClient client,
+            string path,
+            IDictionary<string, object> headers = null,
+            CancellationToken cancel = default)
+        {
+            return GetAsync<T>(client, RestConfig.Default, path, headers, cancel);
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
         public static async Task<IHttpResponse<T>> GetAsync<T>(
             this HttpClient client,
@@ -43,15 +52,6 @@ namespace Rester
             {
                 return MakeErrorResponse<T>(e, response?.StatusCode ?? 0);
             }
-        }
-
-        public static Task<IHttpResponse<T>> GetAsync<T>(
-            this HttpClient client,
-            string path,
-            IDictionary<string, object> headers = null,
-            CancellationToken cancel = default)
-        {
-            return GetAsync<T>(client, RestConfig.Default, path, headers, cancel);
         }
     }
 }
