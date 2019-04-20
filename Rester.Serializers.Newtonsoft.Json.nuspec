@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata minClientVersion="2.12">
+    <id>Rester.Serializers.Newtonsoft.Json</id>
+    <version>0.1.0</version>
+    <title>Rester.NET serializers</title>
+    <authors>machi_pon</authors>
+    <owners>machi_pon</owners>
+    <description>Json.NET serializer for Rester</description>
+    <releaseNotes></releaseNotes>
+    <summary>Json.NET serializer for Rester</summary>
+    <projectUrl>https://github.com/usausa/Rester</projectUrl>
+    <repository type="git" url="https://github.com/usausa/Rester" />
+    <copyright></copyright>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <dependencies>
+      <group targetFramework="netstandard2.0">
+        <dependency id="Newtonsoft.Json" version="12.0.1" />
+        <dependency id="Rester" version="0.1.0" />
+      </group>
+    </dependencies>
+    <tags>rest json</tags>
+  </metadata>
+  <files>
+    <!-- netstandard2.0 -->
+    <file src="Rester.Serializers.Newtonsoft.Json\bin\Release\netstandard2.0\Rester.Serializers.Newtonsoft.Json.dll" target="lib\netstandard2.0" />
+  </files>
+</package>
