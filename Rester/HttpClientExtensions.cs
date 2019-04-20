@@ -9,19 +9,19 @@ namespace Rester
 
     public static partial class HttpClientExtensions
     {
-        private static HttpResponse<T> MakeErrorResponse<T>(Exception e, HttpStatusCode statusCode)
+        private static RestResponse<T> MakeErrorResponse<T>(Exception e, HttpStatusCode statusCode)
         {
             switch (e)
             {
                 case HttpRequestException hre:
-                    return new HttpResponse<T>(HttpResultType.RequestError, statusCode, hre, default);
+                    return new RestResponse<T>(RestResult.RequestError, statusCode, hre, default);
                 case WebException we:
-                    return new HttpResponse<T>(HttpResultType.HttpError, (we.Response as HttpWebResponse)?.StatusCode ?? statusCode, we, default);
+                    return new RestResponse<T>(RestResult.HttpError, (we.Response as HttpWebResponse)?.StatusCode ?? statusCode, we, default);
                 case TaskCanceledException tce:
-                    return new HttpResponse<T>(HttpResultType.Cancel, statusCode, tce, default);
+                    return new RestResponse<T>(RestResult.Cancel, statusCode, tce, default);
             }
 
-            return new HttpResponse<T>(HttpResultType.Unknown, statusCode, e, default);
+            return new RestResponse<T>(RestResult.Unknown, statusCode, e, default);
         }
 
         private static void ProcessHeaders(HttpRequestMessage request, IDictionary<string, object> headers)

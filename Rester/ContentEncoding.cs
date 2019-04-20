@@ -1,6 +1,6 @@
 namespace Rester
 {
-    public enum EncodingType
+    public enum ContentEncoding
     {
         Gzip,
         Deflate

@@ -8,7 +8,7 @@ namespace Rester
 
     public static partial class HttpClientExtensions
     {
-        public static Task<IHttpResponse<T>> GetAsync<T>(
+        public static Task<IRestResponse<T>> GetAsync<T>(
             this HttpClient client,
             string path,
             IDictionary<string, object> headers = null,
@@ -18,7 +18,7 @@ namespace Rester
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
-        public static async Task<IHttpResponse<T>> GetAsync<T>(
+        public static async Task<IRestResponse<T>> GetAsync<T>(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -34,18 +34,18 @@ namespace Rester
                 response = await client.SendAsync(request, cancel).ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode)
                 {
-                    return new HttpResponse<T>(HttpResultType.HttpError, response.StatusCode, null, default);
+                    return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
                 }
 
                 var data = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 try
                 {
                     var obj = config.Serializer.Deserialize<T>(data);
-                    return new HttpResponse<T>(HttpResultType.Success, response.StatusCode, null, obj);
+                    return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
                 }
                 catch (Exception e)
                 {
-                    return new HttpResponse<T>(HttpResultType.SerializeError, response.StatusCode, e, default);
+                    return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
                 }
             }
             catch (Exception e)

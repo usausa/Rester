@@ -12,7 +12,7 @@ namespace Rester
 
     public static partial class HttpClientExtensions
     {
-        public static Task<IHttpResponse> UploadAsync(
+        public static Task<IRestResponse> UploadAsync(
             this HttpClient client,
             string path,
             Stream stream,
@@ -27,7 +27,7 @@ namespace Rester
             return UploadAsync(client, RestConfig.Default, path, stream, name, filename, filter, parameters, headers, progress, cancel);
         }
 
-        public static Task<IHttpResponse> UploadAsync(
+        public static Task<IRestResponse> UploadAsync(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -43,7 +43,7 @@ namespace Rester
             return UploadAsync(client, config, path, new[] { new UploadEntry(stream, name, filename) { Filter = filter } }, parameters, headers, progress, cancel);
         }
 
-        public static Task<IHttpResponse> UploadAsync(
+        public static Task<IRestResponse> UploadAsync(
             this HttpClient client,
             string path,
             string name,
@@ -57,7 +57,7 @@ namespace Rester
             return UploadAsync(client, RestConfig.Default, path, name, filename, filter, parameters, headers, progress, cancel);
         }
 
-        public static async Task<IHttpResponse> UploadAsync(
+        public static async Task<IRestResponse> UploadAsync(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -76,7 +76,7 @@ namespace Rester
             }
         }
 
-        public static Task<IHttpResponse> UploadAsync(
+        public static Task<IRestResponse> UploadAsync(
             this HttpClient client,
             string path,
             IList<UploadEntry> entries,
@@ -89,7 +89,7 @@ namespace Rester
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
-        public static async Task<IHttpResponse> UploadAsync(
+        public static async Task<IRestResponse> UploadAsync(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -140,10 +140,10 @@ namespace Rester
                     response = await client.SendAsync(request, cancel).ConfigureAwait(false);
                     if (!response.IsSuccessStatusCode)
                     {
-                        return new HttpResponse<object>(HttpResultType.HttpError, response.StatusCode, null, default);
+                        return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
                     }
 
-                    return new HttpResponse<object>(HttpResultType.Success, response.StatusCode, null, default);
+                    return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
                 }
             }
             catch (Exception e)

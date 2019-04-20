@@ -14,7 +14,7 @@ namespace Rester
 
         public Encoding Encoding { get; set; } = Encoding.UTF8;
 
-        public EncodingType PostEncodingType { get; set; } = EncodingType.Gzip;
+        public ContentEncoding ContentEncoding { get; set; } = ContentEncoding.Gzip;
 
         public int TransferBufferSize { get; set; } = 16 * 1024;
 

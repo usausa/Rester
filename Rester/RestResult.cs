@@ -1,6 +1,6 @@
 namespace Rester
 {
-    public enum HttpResultType
+    public enum RestResult
     {
         Success,
         Cancel,

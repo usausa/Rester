@@ -11,7 +11,7 @@ namespace Rester
 
     public static partial class HttpClientExtensions
     {
-        public static Task<IHttpResponse> PostAsync(
+        public static Task<IRestResponse> PostAsync(
             this HttpClient client,
             string path,
             object parameter,
@@ -23,7 +23,7 @@ namespace Rester
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
-        public static async Task<IHttpResponse> PostAsync(
+        public static async Task<IRestResponse> PostAsync(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -45,13 +45,13 @@ namespace Rester
                 }
                 catch (Exception e)
                 {
-                    return new HttpResponse<object>(HttpResultType.SerializeError, 0, e, default);
+                    return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
                 }
 
                 var content = (HttpContent)new StringContent(data, config.Encoding, config.Serializer.ContentType);
                 if (compress)
                 {
-                    content = new CompressedContent(content, config.PostEncodingType);
+                    content = new CompressedContent(content, config.ContentEncoding);
                 }
 
                 request.Content = content;
@@ -59,10 +59,10 @@ namespace Rester
                 response = await client.SendAsync(request, cancel).ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode)
                 {
-                    return new HttpResponse<object>(HttpResultType.HttpError, response.StatusCode, null, default);
+                    return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
                 }
 
-                return new HttpResponse<object>(HttpResultType.Success, response.StatusCode, null, default);
+                return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
             }
             catch (Exception e)
             {
@@ -70,23 +70,23 @@ namespace Rester
             }
         }
 
-        internal sealed class CompressedContent : HttpContent
+        private sealed class CompressedContent : HttpContent
         {
             private readonly HttpContent content;
 
-            private readonly EncodingType encodingType;
+            private readonly ContentEncoding contentEncoding;
 
-            public CompressedContent(HttpContent content, EncodingType encodingType)
+            public CompressedContent(HttpContent content, ContentEncoding contentEncoding)
             {
                 this.content = content;
-                this.encodingType = encodingType;
+                this.contentEncoding = contentEncoding;
 
                 foreach (var header in content.Headers)
                 {
                     Headers.TryAddWithoutValidation(header.Key, header.Value);
                 }
 
-                Headers.ContentEncoding.Add(encodingType.ToString().ToLowerInvariant());
+                Headers.ContentEncoding.Add(contentEncoding.ToString().ToLowerInvariant());
             }
 
             protected override void Dispose(bool disposing)
@@ -108,7 +108,7 @@ namespace Rester
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2008:DoNotCreateTasksWithoutPassingATaskScheduler", Justification = "Ignore")]
             protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
             {
-                var compressedStream = encodingType == EncodingType.Gzip
+                var compressedStream = contentEncoding == ContentEncoding.Gzip
                     ? (Stream)new GZipStream(stream, CompressionMode.Compress, true)
                     : new DeflateStream(stream, CompressionMode.Compress, true);
                 return content.CopyToAsync(compressedStream, context)

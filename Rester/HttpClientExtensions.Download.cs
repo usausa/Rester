@@ -10,7 +10,7 @@ namespace Rester
 
     public static partial class HttpClientExtensions
     {
-        public static Task<IHttpResponse> DownloadAsync(
+        public static Task<IRestResponse> DownloadAsync(
             this HttpClient client,
             string path,
             string filename,
@@ -21,7 +21,7 @@ namespace Rester
             return DownloadAsync(client, RestConfig.Default, path, filename, headers, progress, cancel);
         }
 
-        public static async Task<IHttpResponse> DownloadAsync(
+        public static async Task<IRestResponse> DownloadAsync(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -53,7 +53,7 @@ namespace Rester
             }
         }
 
-        public static Task<IHttpResponse> DownloadAsync(
+        public static Task<IRestResponse> DownloadAsync(
             this HttpClient client,
             string path,
             Stream stream,
@@ -65,7 +65,7 @@ namespace Rester
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
-        public static async Task<IHttpResponse> DownloadAsync(
+        public static async Task<IRestResponse> DownloadAsync(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -83,7 +83,7 @@ namespace Rester
                 response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode)
                 {
-                    return new HttpResponse<object>(HttpResultType.HttpError, response.StatusCode, null, default);
+                    return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
                 }
 
                 using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
@@ -118,7 +118,7 @@ namespace Rester
                     }
                 }
 
-                return new HttpResponse<object>(HttpResultType.Success, response.StatusCode, null, default);
+                return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
             }
             catch (Exception e)
             {

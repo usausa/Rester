@@ -3,23 +3,23 @@ namespace Rester
     using System;
     using System.Net;
 
-    public interface IHttpResponse
+    public interface IRestResponse
     {
-        HttpResultType ResultType { get; }
+        RestResult RestResult { get; }
 
         HttpStatusCode StatusCode { get; }
 
         Exception InnerException { get; }
     }
 
-    public interface IHttpResponse<out T> : IHttpResponse
+    public interface IRestResponse<out T> : IRestResponse
     {
         T Content { get; }
     }
 
-    public sealed class HttpResponse<T> : IHttpResponse<T>
+    public sealed class RestResponse<T> : IRestResponse<T>
     {
-        public HttpResultType ResultType { get; }
+        public RestResult RestResult { get; }
 
         public HttpStatusCode StatusCode { get; }
 
@@ -27,9 +27,9 @@ namespace Rester
 
         public T Content { get; }
 
-        public HttpResponse(HttpResultType resultType, HttpStatusCode statusCode, Exception innerException, T content)
+        public RestResponse(RestResult restResult, HttpStatusCode statusCode, Exception innerException, T content)
         {
-            ResultType = resultType;
+            RestResult = restResult;
             StatusCode = statusCode;
             InnerException = innerException;
             Content = content;
@@ -38,6 +38,6 @@ namespace Rester
 
     public static class HttpResponseExtensions
     {
-        public static bool IsSuccess(this IHttpResponse response) => response.ResultType == HttpResultType.Success;
+        public static bool IsSuccess(this IRestResponse response) => response.RestResult == RestResult.Success;
     }
 }
