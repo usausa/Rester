@@ -53,7 +53,7 @@ var response = await client.UploadAsync(
 
 ## NuGet
 
-| Id                                 |                     |
+| Id                                 | Description         |
 |------------------------------------|---------------------|
 | Rester                             | Rester core         |
 | Rester.Serializers.Newtonsoft.Json | Json.NET serializer |
