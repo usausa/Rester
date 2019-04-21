@@ -144,13 +144,13 @@ namespace Example.Client
             var response = await client.DownloadAsync(
                 "api/test/download/test.dat",
                 "test.dat",
-                progress: (read, total) =>
+                progress: (processed, total) =>
                 {
-                    var percent = Math.Floor((double)read / total * 100);
+                    var percent = Math.Floor((double)processed / total * 100);
                     if (percent > progress)
                     {
                         progress = percent;
-                        Console.WriteLine($"{read} / {total} : {progress}");
+                        Console.WriteLine($"{processed} / {total} : {progress}");
                     }
                 }).ConfigureAwait(false);
 
