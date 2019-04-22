@@ -38,17 +38,17 @@ namespace Rester
                 var request = new HttpRequestMessage(HttpMethod.Post, path);
                 ProcessHeaders(request, headers);
 
-                string data;
+                string requestString;
                 try
                 {
-                    data = config.Serializer.Serialize(parameter);
+                    requestString = config.Serializer.Serialize(parameter);
                 }
                 catch (Exception e)
                 {
                     return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
                 }
 
-                var content = (HttpContent)new StringContent(data, config.Encoding, config.Serializer.ContentType);
+                var content = (HttpContent)new StringContent(requestString, config.Encoding, config.Serializer.ContentType);
                 if (compress)
                 {
                     content = new CompressedContent(content, config.ContentEncoding);
@@ -67,6 +67,74 @@ namespace Rester
             catch (Exception e)
             {
                 return MakeErrorResponse<object>(e, response?.StatusCode ?? 0);
+            }
+        }
+
+        public static Task<IRestResponse<T>> PostAsync<T>(
+            this HttpClient client,
+            string path,
+            object parameter,
+            IDictionary<string, object> headers = null,
+            bool compress = false,
+            CancellationToken cancel = default)
+        {
+            return PostAsync<T>(client, RestConfig.Default, path, parameter, headers, compress, cancel);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
+        public static async Task<IRestResponse<T>> PostAsync<T>(
+            this HttpClient client,
+            RestConfig config,
+            string path,
+            object parameter,
+            IDictionary<string, object> headers = null,
+            bool compress = false,
+            CancellationToken cancel = default)
+        {
+            HttpResponseMessage response = null;
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, path);
+                ProcessHeaders(request, headers);
+
+                string requestString;
+                try
+                {
+                    requestString = config.Serializer.Serialize(parameter);
+                }
+                catch (Exception e)
+                {
+                    return new RestResponse<T>(RestResult.SerializeError, 0, e, default);
+                }
+
+                var content = (HttpContent)new StringContent(requestString, config.Encoding, config.Serializer.ContentType);
+                if (compress)
+                {
+                    content = new CompressedContent(content, config.ContentEncoding);
+                }
+
+                request.Content = content;
+
+                response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
+                }
+
+                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                try
+                {
+                    var obj = config.Serializer.Deserialize<T>(responseString);
+                    return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
+                }
+                catch (Exception e)
+                {
+                    return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
+                }
+            }
+            catch (Exception e)
+            {
+                return MakeErrorResponse<T>(e, response?.StatusCode ?? 0);
             }
         }
 

@@ -144,7 +144,24 @@ public static async Task<IRestResponse> PostAsync(
     IDictionary<string, object> headers = null,
     bool compress = false,
     CancellationToken cancel = default);
-```
+
+public static Task<IRestResponse<T>> PostAsync<T>(
+    this HttpClient client,
+    string path,
+    object parameter,
+    IDictionary<string, object> headers = null,
+    bool compress = false,
+    CancellationToken cancel = default);
+
+public static async Task<IRestResponse<T>> PostAsync<T>(
+    this HttpClient client,
+    RestConfig config,
+    string path,
+    object parameter,
+    IDictionary<string, object> headers = null,
+    bool compress = false,
+    CancellationToken cancel = default);
+    ```
 
 ### Download
 
