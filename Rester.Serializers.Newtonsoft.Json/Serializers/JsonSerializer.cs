@@ -21,9 +21,9 @@ namespace Rester.Serializers
             return JsonConvert.SerializeObject(obj, settings);
         }
 
-        public T Deserialize<T>(string json)
+        public T Deserialize<T>(string text)
         {
-            return JsonConvert.DeserializeObject<T>(json, settings);
+            return JsonConvert.DeserializeObject<T>(text, settings);
         }
     }
 }
