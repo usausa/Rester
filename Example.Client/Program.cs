@@ -113,12 +113,12 @@ namespace Example.Client
         {
             Console.WriteLine("==== PostAsync ====");
 
-            var response = await client.PostAsync("api/test/post", new TestPostRequest { Value = 1 }).ConfigureAwait(false);
+            var response = await client.PostAsync("api/test/post", new TestPostRequest { Value = 1, Text = "うさうさ" }).ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
 
-            response = await client.PostAsync("api/test/post", new TestPostRequest { Value = 100 }).ConfigureAwait(false);
+            response = await client.PostAsync("api/test/post", new TestPostRequest { Value = 100, Text = "うさうさ" }).ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
@@ -128,7 +128,7 @@ namespace Example.Client
         {
             Console.WriteLine("==== PostAsync:Compress ====");
 
-            var response = await client.PostAsync("api/test/post", new TestPostRequest { Value = 100 }, compress: true).ConfigureAwait(false);
+            var response = await client.PostAsync("api/test/post", new TestPostRequest { Value = 100, Text = "うさうさ" }, compress: true).ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");

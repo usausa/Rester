@@ -1,11 +1,13 @@
 namespace Rester.Serializers
 {
+    using System.IO;
+
     public interface ISerializer
     {
         string ContentType { get; }
 
-        string Serialize(object obj);
+        void Serialize(Stream stream, object obj);
 
-        T Deserialize<T>(string text);
+        T Deserialize<T>(Stream stream);
     }
 }

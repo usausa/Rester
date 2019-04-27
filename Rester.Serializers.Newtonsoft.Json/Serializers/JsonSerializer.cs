@@ -1,29 +1,38 @@
 namespace Rester.Serializers
 {
+    using System.IO;
+
     using Newtonsoft.Json;
 
     public sealed class JsonSerializer : ISerializer
     {
         public static JsonSerializer Default { get; } = new JsonSerializer(new JsonSerializerConfig());
 
-        private readonly JsonSerializerSettings settings;
+        private readonly Newtonsoft.Json.JsonSerializer serializer;
 
         public string ContentType { get; }
 
         public JsonSerializer(JsonSerializerConfig config)
         {
-            settings = config.Settings;
+            serializer = Newtonsoft.Json.JsonSerializer.Create(config.Settings);
             ContentType = config.ContentType;
         }
 
-        public string Serialize(object obj)
+        public void Serialize(Stream stream, object obj)
         {
-            return JsonConvert.SerializeObject(obj, settings);
+            var sw = new StreamWriter(stream);
+            var jtw = new JsonTextWriter(sw);
+            serializer.Serialize(jtw, obj);
+            jtw.Flush();
         }
 
-        public T Deserialize<T>(string text)
+        public T Deserialize<T>(Stream stream)
         {
-            return JsonConvert.DeserializeObject<T>(text, settings);
+            using (var sr = new StreamReader(stream))
+            using (var jtr = new JsonTextReader(sr))
+            {
+                return serializer.Deserialize<T>(jtr);
+            }
         }
     }
 }

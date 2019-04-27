@@ -70,9 +70,6 @@ public class RestConfig
     // Serializer for object
     public ISerializer Serializer { get; set; }
 
-    // Default UTF-8
-    public Encoding Encoding { get; set; }
-
     // Content-Encoding
     public ContentEncoding ContentEncoding { get; set; }
 

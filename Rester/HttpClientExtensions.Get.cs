@@ -37,10 +37,9 @@ namespace Rester
                     return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
                 }
 
-                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 try
                 {
-                    var obj = config.Serializer.Deserialize<T>(responseString);
+                    var obj = config.Serializer.Deserialize<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
                     return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
                 }
                 catch (Exception e)

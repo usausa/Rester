@@ -6,6 +6,7 @@ namespace Rester
     using System.IO.Compression;
     using System.Net;
     using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -38,17 +39,19 @@ namespace Rester
                 var request = new HttpRequestMessage(HttpMethod.Post, path);
                 ProcessHeaders(request, headers);
 
-                string requestString;
+                var stream = new MemoryStream();
                 try
                 {
-                    requestString = config.Serializer.Serialize(parameter);
+                    config.Serializer.Serialize(stream, parameter);
                 }
                 catch (Exception e)
                 {
                     return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
                 }
 
-                var content = (HttpContent)new StringContent(requestString, config.Encoding, config.Serializer.ContentType);
+                stream.Seek(0, SeekOrigin.Begin);
+                var content = (HttpContent)new StreamContent(stream);
+                content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
                 if (compress)
                 {
                     content = new CompressedContent(content, config.ContentEncoding);
@@ -97,17 +100,19 @@ namespace Rester
                 var request = new HttpRequestMessage(HttpMethod.Post, path);
                 ProcessHeaders(request, headers);
 
-                string requestString;
+                var stream = new MemoryStream();
                 try
                 {
-                    requestString = config.Serializer.Serialize(parameter);
+                    config.Serializer.Serialize(stream, parameter);
                 }
                 catch (Exception e)
                 {
                     return new RestResponse<T>(RestResult.SerializeError, 0, e, default);
                 }
 
-                var content = (HttpContent)new StringContent(requestString, config.Encoding, config.Serializer.ContentType);
+                stream.Seek(0, SeekOrigin.Begin);
+                var content = (HttpContent)new StreamContent(stream);
+                content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
                 if (compress)
                 {
                     content = new CompressedContent(content, config.ContentEncoding);
@@ -121,10 +126,9 @@ namespace Rester
                     return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
                 }
 
-                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 try
                 {
-                    var obj = config.Serializer.Deserialize<T>(responseString);
+                    var obj = config.Serializer.Deserialize<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
                     return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
                 }
                 catch (Exception e)
