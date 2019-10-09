@@ -21,7 +21,7 @@ namespace Example.Client
                     ? (long?)length
                     : null;
 
-            var client = new TestClient("https://localhost:44384/");
+            var client = new TestClient("http://localhost:41560/");
 
             // Get
             await client.TestGetSingleAsync().ConfigureAwait(false);
@@ -73,7 +73,7 @@ namespace Example.Client
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
-            Console.WriteLine($"Content.Code: {response.Content.Code}");
+            Console.WriteLine($"Content.Code: {response.Content?.Code}");
         }
 
         public async Task TestGetListAsync()
@@ -84,8 +84,8 @@ namespace Example.Client
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
-            Console.WriteLine($"Content.Entries.Length: {response.Content.Entries.Length}");
-            Console.WriteLine($"Content.Entries[0].Name: {response.Content.Entries[0].Name}");
+            Console.WriteLine($"Content.Entries.Length: {response.Content?.Entries.Length}");
+            Console.WriteLine($"Content.Entries[0].Name: {response.Content?.Entries[0].Name}");
         }
 
         public async Task TestGetWithHeaderAsync()

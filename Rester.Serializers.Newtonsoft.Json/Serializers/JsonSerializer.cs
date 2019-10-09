@@ -21,9 +21,11 @@ namespace Rester.Serializers
         public void Serialize(Stream stream, object obj)
         {
             var sw = new StreamWriter(stream);
-            var jtw = new JsonTextWriter(sw);
-            serializer.Serialize(jtw, obj);
-            jtw.Flush();
+            using (var jtw = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(jtw, obj);
+                jtw.Flush();
+            }
         }
 
         public T Deserialize<T>(Stream stream)
