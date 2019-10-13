@@ -18,6 +18,7 @@ namespace Rester.Serializers
             ContentType = config.ContentType;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Ignore")]
         public void Serialize(Stream stream, object obj)
         {
             var sw = new StreamWriter(stream);
@@ -26,6 +27,7 @@ namespace Rester.Serializers
             jtw.Flush();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Ignore")]
         public T Deserialize<T>(Stream stream)
         {
             var sr = new StreamReader(stream);
