@@ -77,32 +77,39 @@ namespace Rester
             HttpResponseMessage response = null;
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, path);
-                ProcessHeaders(request, headers);
-
-                response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
-                if (!response.IsSuccessStatusCode)
+                using (var request = new HttpRequestMessage(HttpMethod.Get, path))
                 {
-                    return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
-                }
+                    ProcessHeaders(request, headers);
 
-                using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
-                {
-                    if (progress != null)
+                    response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
+                    if (!response.IsSuccessStatusCode)
                     {
-                        var totalSize = response.Content.Headers.ContentLength ??
-                                        config.LengthResolver?.Invoke(new LengthResolveContext(response));
-                        if (totalSize.HasValue)
-                        {
-                            var buffer = new byte[config.TransferBufferSize];
-                            var totalProcessed = 0L;
-                            int read;
-                            while ((read = await input.ReadAsync(buffer, 0, buffer.Length, cancel).ConfigureAwait(false)) > 0)
-                            {
-                                await stream.WriteAsync(buffer, 0, read, cancel).ConfigureAwait(false);
+                        return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
+                    }
 
-                                totalProcessed += read;
-                                progress(totalProcessed, totalSize.Value);
+                    using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                    {
+                        if (progress != null)
+                        {
+                            var totalSize = response.Content.Headers.ContentLength ??
+                                            config.LengthResolver?.Invoke(new LengthResolveContext(response));
+                            if (totalSize.HasValue)
+                            {
+                                var buffer = new byte[config.TransferBufferSize];
+                                var totalProcessed = 0L;
+                                int read;
+                                while ((read = await input.ReadAsync(buffer, 0, buffer.Length, cancel).ConfigureAwait(false)) > 0)
+                                {
+                                    await stream.WriteAsync(buffer, 0, read, cancel).ConfigureAwait(false);
+
+                                    totalProcessed += read;
+                                    progress(totalProcessed, totalSize.Value);
+                                }
+                            }
+                            else
+                            {
+                                await input.CopyToAsync(stream, config.TransferBufferSize, cancel).ConfigureAwait(false);
+                                await stream.FlushAsync(cancel).ConfigureAwait(false);
                             }
                         }
                         else
@@ -111,14 +118,9 @@ namespace Rester
                             await stream.FlushAsync(cancel).ConfigureAwait(false);
                         }
                     }
-                    else
-                    {
-                        await input.CopyToAsync(stream, config.TransferBufferSize, cancel).ConfigureAwait(false);
-                        await stream.FlushAsync(cancel).ConfigureAwait(false);
-                    }
-                }
 
-                return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
+                    return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
+                }
             }
             catch (Exception e)
             {

@@ -28,23 +28,25 @@ namespace Rester
             HttpResponseMessage response = null;
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, path);
-                ProcessHeaders(request, headers);
+                using (var request = new HttpRequestMessage(HttpMethod.Get, path))
+                {
+                    ProcessHeaders(request, headers);
 
-                response = await client.SendAsync(request, cancel).ConfigureAwait(false);
-                if (!response.IsSuccessStatusCode)
-                {
-                    return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
-                }
+                    response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
+                    }
 
-                try
-                {
-                    var obj = config.Serializer.Deserialize<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
-                    return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
-                }
-                catch (Exception e)
-                {
-                    return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
+                    try
+                    {
+                        var obj = config.Serializer.Deserialize<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
+                        return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
+                    }
+                    catch (Exception e)
+                    {
+                        return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
+                    }
                 }
             }
             catch (Exception e)

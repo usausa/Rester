@@ -21,7 +21,7 @@ namespace Example.Client
                     ? (long?)length
                     : null;
 
-            var client = new TestClient("http://localhost:41560/");
+            var client = new TestClient("https://localhost:44384/");
 
             // Get
             await client.TestGetSingleAsync().ConfigureAwait(false);

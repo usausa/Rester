@@ -1,10 +1,10 @@
-﻿namespace Example.Server.Controllers
+namespace Example.Server.Controllers
 {
     using System.Diagnostics;
 
-    using Microsoft.AspNetCore.Mvc;
-
     using Example.Server.Models;
+
+    using Microsoft.AspNetCore.Mvc;
 
     public class HomeController : Controller
     {

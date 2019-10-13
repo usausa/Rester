@@ -3,11 +3,11 @@ namespace Example.Server.Areas.Api.Controllers
     using System;
     using System.Linq;
 
+    using Example.Server.Areas.Api.Models;
+
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
-
-    using Example.Server.Areas.Api.Models;
 
     public class TestController : BaseApiController
     {
@@ -58,7 +58,7 @@ namespace Example.Server.Areas.Api.Controllers
         {
             var size = 100 * 1000 * 1000;
 
-            if (filename.EndsWith(".json"))
+            if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
                 HttpContext.Response.Headers.Add("X-OriginalLength", $"{size}");
 
