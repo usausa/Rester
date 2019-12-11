@@ -10,7 +10,7 @@ namespace Rester
 
     public static partial class HttpClientExtensions
     {
-        public static Task<IRestResponse> DownloadAsync(
+        public static ValueTask<IRestResponse> DownloadAsync(
             this HttpClient client,
             string path,
             string filename,
@@ -21,7 +21,7 @@ namespace Rester
             return DownloadAsync(client, RestConfig.Default, path, filename, headers, progress, cancel);
         }
 
-        public static async Task<IRestResponse> DownloadAsync(
+        public static async ValueTask<IRestResponse> DownloadAsync(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -33,7 +33,7 @@ namespace Rester
             var delete = true;
             try
             {
-                using (var stream = new FileStream(filename, FileMode.Create))
+                await using (var stream = new FileStream(filename, FileMode.Create))
                 {
                     var result = await DownloadAsync(client, config, path, stream, headers, progress, cancel).ConfigureAwait(false);
                     if (result.IsSuccess())
@@ -53,7 +53,7 @@ namespace Rester
             }
         }
 
-        public static Task<IRestResponse> DownloadAsync(
+        public static ValueTask<IRestResponse> DownloadAsync(
             this HttpClient client,
             string path,
             Stream stream,
@@ -65,7 +65,7 @@ namespace Rester
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
-        public static async Task<IRestResponse> DownloadAsync(
+        public static async ValueTask<IRestResponse> DownloadAsync(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -87,7 +87,7 @@ namespace Rester
                         return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
                     }
 
-                    using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                    await using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
                     {
                         if (progress != null)
                         {

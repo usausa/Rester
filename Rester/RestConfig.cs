@@ -1,7 +1,6 @@
 namespace Rester
 {
     using System;
-    using System.Text;
 
     using Rester.Serializers;
     using Rester.Transfer;

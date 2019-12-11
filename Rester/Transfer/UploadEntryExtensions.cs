@@ -8,16 +8,20 @@ namespace Rester.Transfer
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2008:DoNotCreateTasksWithoutPassingATaskScheduler", Justification = "Ignore")]
     public static class UploadEntryExtensions
     {
-        private static readonly Func<Stream, Stream, Func<Stream, Stream, Task>, Task> GzipFilter = (source, destination, task) =>
+        private static readonly Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> GzipFilter = async (source, destination, task) =>
         {
-            var compressedStream = (Stream)new GZipStream(destination, CompressionMode.Compress, true);
-            return task(source, compressedStream).ContinueWith(t => compressedStream.Dispose());
+            await using (var compressedStream = (Stream)new GZipStream(destination, CompressionMode.Compress, true))
+            {
+                await task(source, compressedStream);
+            }
         };
 
-        private static readonly Func<Stream, Stream, Func<Stream, Stream, Task>, Task> DeflateFilter = (source, destination, task) =>
+        private static readonly Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> DeflateFilter = async (source, destination, task) =>
         {
-            var compressedStream = (Stream)new DeflateStream(destination, CompressionMode.Compress, true);
-            return task(source, compressedStream).ContinueWith(t => compressedStream.Dispose());
+            await using (var compressedStream = (Stream)new DeflateStream(destination, CompressionMode.Compress, true))
+            {
+                await task(source, compressedStream);
+            }
         };
 
         public static UploadEntry WithGzip(this UploadEntry entry)

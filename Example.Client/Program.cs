@@ -65,7 +65,7 @@ namespace Example.Client
 
         // Get
 
-        public async Task TestGetSingleAsync()
+        public async ValueTask TestGetSingleAsync()
         {
             Console.WriteLine("==== GetAsync:Single ====");
 
@@ -76,7 +76,7 @@ namespace Example.Client
             Console.WriteLine($"Content.Code: {response.Content?.Code}");
         }
 
-        public async Task TestGetListAsync()
+        public async ValueTask TestGetListAsync()
         {
             Console.WriteLine("==== GetAsync:Single ====");
 
@@ -88,7 +88,7 @@ namespace Example.Client
             Console.WriteLine($"Content.Entries[0].Name: {response.Content?.Entries[0].Name}");
         }
 
-        public async Task TestGetWithHeaderAsync()
+        public async ValueTask TestGetWithHeaderAsync()
         {
             Console.WriteLine("==== GetAsync:Single ====");
 
@@ -109,7 +109,7 @@ namespace Example.Client
 
         // Post
 
-        public async Task TestPostAsync()
+        public async ValueTask TestPostAsync()
         {
             Console.WriteLine("==== PostAsync ====");
 
@@ -124,7 +124,7 @@ namespace Example.Client
             Console.WriteLine($"StatusCode: {response.StatusCode}");
         }
 
-        public async Task TestPostWithCompressAsync()
+        public async ValueTask TestPostWithCompressAsync()
         {
             Console.WriteLine("==== PostAsync:Compress ====");
 
@@ -136,7 +136,7 @@ namespace Example.Client
 
         // Download
 
-        public async Task TestDownloadAsync()
+        public async ValueTask TestDownloadAsync()
         {
             Console.WriteLine("==== Download ====");
 
@@ -158,7 +158,7 @@ namespace Example.Client
             Console.WriteLine($"StatusCode: {response.StatusCode}");
         }
 
-        public async Task TestDownloadWithDecompressAsync()
+        public async ValueTask TestDownloadWithDecompressAsync()
         {
             Console.WriteLine("==== Download:Decompress ====");
 
@@ -182,7 +182,7 @@ namespace Example.Client
 
         // Upload
 
-        public async Task TestUploadAsync()
+        public async ValueTask TestUploadAsync()
         {
             Console.WriteLine("==== Upload ====");
 
@@ -192,7 +192,7 @@ namespace Example.Client
             Console.WriteLine($"StatusCode: {response.StatusCode}");
         }
 
-        public async Task TestUploadMultipleWithParameterAsync()
+        public async ValueTask TestUploadMultipleWithParameterAsync()
         {
             Console.WriteLine("==== Upload:Multiple:Parameter ====");
 

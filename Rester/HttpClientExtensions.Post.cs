@@ -12,7 +12,7 @@ namespace Rester
 
     public static partial class HttpClientExtensions
     {
-        public static Task<IRestResponse> PostAsync(
+        public static ValueTask<IRestResponse> PostAsync(
             this HttpClient client,
             string path,
             object parameter,
@@ -24,7 +24,7 @@ namespace Rester
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
-        public static async Task<IRestResponse> PostAsync(
+        public static async ValueTask<IRestResponse> PostAsync(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -37,7 +37,7 @@ namespace Rester
             try
             {
                 using (var request = new HttpRequestMessage(HttpMethod.Post, path))
-                using (var stream = new MemoryStream())
+                await using (var stream = new MemoryStream())
                 {
                     ProcessHeaders(request, headers);
 
@@ -75,7 +75,7 @@ namespace Rester
             }
         }
 
-        public static Task<IRestResponse<T>> PostAsync<T>(
+        public static ValueTask<IRestResponse<T>> PostAsync<T>(
             this HttpClient client,
             string path,
             object parameter,
@@ -87,7 +87,7 @@ namespace Rester
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
-        public static async Task<IRestResponse<T>> PostAsync<T>(
+        public static async ValueTask<IRestResponse<T>> PostAsync<T>(
             this HttpClient client,
             RestConfig config,
             string path,
@@ -100,7 +100,7 @@ namespace Rester
             try
             {
                 using (var request = new HttpRequestMessage(HttpMethod.Post, path))
-                using (var stream = new MemoryStream())
+                await using (var stream = new MemoryStream())
                 {
                     ProcessHeaders(request, headers);
 
