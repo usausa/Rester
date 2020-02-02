@@ -15,7 +15,10 @@ namespace Example.Client
     {
         public static async Task Main()
         {
-            RestConfig.Default.UseJsonSerializer();
+            RestConfig.Default.UseJsonSerializer(options =>
+            {
+                options.Converters.Add(new DateTimeOffsetConverter());
+            });
             RestConfig.Default.LengthResolver = ctx =>
                 Int64.TryParse(ctx.GetValues("X-OriginalLength").FirstOrDefault(), out var length)
                     ? (long?)length

@@ -14,7 +14,7 @@ namespace Rester.Serializers
 
         public JsonSerializer(JsonSerializerConfig config)
         {
-            options = config.Settings;
+            options = config.Options;
             ContentType = config.ContentType;
         }
 

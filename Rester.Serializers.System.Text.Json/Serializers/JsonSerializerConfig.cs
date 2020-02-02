@@ -6,6 +6,9 @@ namespace Rester.Serializers
     {
         public string ContentType { get; set; } = "application/json";
 
-        public JsonSerializerOptions Settings { get; } = new JsonSerializerOptions();
+        public JsonSerializerOptions Options { get; } = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
     }
 }
