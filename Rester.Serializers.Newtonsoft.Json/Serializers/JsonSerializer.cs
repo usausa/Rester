@@ -1,6 +1,8 @@
 namespace Rester.Serializers
 {
     using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     using Newtonsoft.Json;
 
@@ -19,20 +21,21 @@ namespace Rester.Serializers
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Ignore")]
-        public void Serialize(Stream stream, object obj)
+        public ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel)
         {
             var sw = new StreamWriter(stream);
             var jtw = new JsonTextWriter(sw);
             serializer.Serialize(jtw, obj);
             jtw.Flush();
+            return default;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Ignore")]
-        public T Deserialize<T>(Stream stream)
+        public ValueTask<T> DeserializeAsync<T>(Stream stream, CancellationToken cancel)
         {
             var sr = new StreamReader(stream);
             var jtr = new JsonTextReader(sr);
-            return serializer.Deserialize<T>(jtr);
+            return new ValueTask<T>(serializer.Deserialize<T>(jtr));
         }
     }
 }

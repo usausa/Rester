@@ -40,7 +40,7 @@ namespace Rester
 
                     try
                     {
-                        var obj = config.Serializer.Deserialize<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
+                        var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), cancel);
                         return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
                     }
                     catch (Exception e)
