@@ -21,6 +21,7 @@ namespace Rester
             return DownloadAsync(client, RestConfig.Default, path, filename, headers, progress, cancel);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Ignore")]
         public static async ValueTask<IRestResponse> DownloadAsync(
             this HttpClient client,
             RestConfig config,
