@@ -10,8 +10,6 @@ namespace Rester.Serializers
         public JsonSerializerSettings Settings { get; } = new JsonSerializerSettings
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-            DateFormatHandling = DateFormatHandling.IsoDateFormat
         };
     }
 }
