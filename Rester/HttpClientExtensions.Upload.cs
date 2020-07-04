@@ -125,7 +125,7 @@ namespace Rester
                             if (totalSize.HasValue)
                             {
                                 var totalProcessed = 0L;
-                                progressProxy = (processed) =>
+                                progressProxy = processed =>
                                 {
                                     totalProcessed += processed;
                                     progress(totalProcessed, totalSize.Value);
@@ -227,7 +227,7 @@ namespace Rester
                         return;
                     }
 
-                    await filter(source, stream, async (s, d) => await s.CopyToAsync(d, bufferSize, cancel).ConfigureAwait(false));
+                    await filter(source, stream, async (s, d) => await s.CopyToAsync(d, bufferSize, cancel).ConfigureAwait(false)).ConfigureAwait(false);
                     return;
                 }
 

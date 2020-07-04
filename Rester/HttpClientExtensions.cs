@@ -11,17 +11,13 @@ namespace Rester
     {
         private static RestResponse<T> MakeErrorResponse<T>(Exception e, HttpStatusCode statusCode)
         {
-            switch (e)
+            return e switch
             {
-                case HttpRequestException hre:
-                    return new RestResponse<T>(RestResult.RequestError, statusCode, hre, default);
-                case WebException we:
-                    return new RestResponse<T>(RestResult.HttpError, (we.Response as HttpWebResponse)?.StatusCode ?? statusCode, we, default);
-                case TaskCanceledException tce:
-                    return new RestResponse<T>(RestResult.Cancel, statusCode, tce, default);
-            }
-
-            return new RestResponse<T>(RestResult.Unknown, statusCode, e, default);
+                HttpRequestException hre => new RestResponse<T>(RestResult.RequestError, statusCode, hre, default),
+                WebException we => new RestResponse<T>(RestResult.HttpError, (we.Response as HttpWebResponse)?.StatusCode ?? statusCode, we, default),
+                TaskCanceledException tce => new RestResponse<T>(RestResult.Cancel, statusCode, tce, default),
+                _ => new RestResponse<T>(RestResult.Unknown, statusCode, e, default)
+            };
         }
 
         private static void ProcessHeaders(HttpRequestMessage request, IDictionary<string, object> headers)

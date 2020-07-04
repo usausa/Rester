@@ -2,22 +2,19 @@ namespace Example.Server
 {
     using System.Linq;
 
-    using Example.Server.Areas.Api;
-
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.ResponseCompression;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.OpenApi.Models;
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
 
     using Smart.AspNetCore;
     using Smart.AspNetCore.ApplicationModels;
-
-    using Swashbuckle.AspNetCore.Swagger;
 
     public class Startup
     {
@@ -53,9 +50,7 @@ namespace Example.Server
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("example", new Info { Title = "Example API", Version = "v1" });
-                options.DescribeAllEnumsAsStrings();    // Enum
-                options.OperationFilter<FormFileOperationFilter>();
+                options.SwaggerDoc("example", new OpenApiInfo { Title = "Example API", Version = "v1" });
             });
         }
 

@@ -25,7 +25,7 @@ namespace Rester.Serializers
 
         public async ValueTask<T> DeserializeAsync<T>(Stream stream, CancellationToken cancel)
         {
-            return await System.Text.Json.JsonSerializer.DeserializeAsync<T>(stream, options, cancel);
+            return await System.Text.Json.JsonSerializer.DeserializeAsync<T>(stream, options, cancel).ConfigureAwait(false);
         }
     }
 }
