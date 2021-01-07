@@ -22,7 +22,7 @@ namespace Rester
 
         private static void ProcessHeaders(HttpRequestMessage request, IDictionary<string, object> headers)
         {
-            if (headers == null)
+            if (headers is null)
             {
                 return;
             }

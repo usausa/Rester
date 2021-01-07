@@ -7,7 +7,7 @@ namespace Rester
 
     public class RestConfig
     {
-        public static RestConfig Default { get; } = new RestConfig();
+        public static RestConfig Default { get; } = new();
 
         public ISerializer Serializer { get; set; }
 

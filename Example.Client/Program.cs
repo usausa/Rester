@@ -204,7 +204,7 @@ namespace Example.Client
                 "api/test/upload2",
                 new List<UploadEntry>
                 {
-                    new UploadEntry(new MemoryStream(new byte[128 * 1000]), "file1", "test.txt"),
+                    new(new MemoryStream(new byte[128 * 1000]), "file1", "test.txt"),
                     new UploadEntry(new MemoryStream(new byte[128 * 1000]), "file2", "test.csv").WithGzip()
                 },
                 new Dictionary<string, object>

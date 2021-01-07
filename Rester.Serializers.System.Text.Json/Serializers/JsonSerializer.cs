@@ -6,7 +6,7 @@ namespace Rester.Serializers
 
     public sealed class JsonSerializer : ISerializer
     {
-        public static JsonSerializer Default { get; } = new JsonSerializer(new JsonSerializerConfig());
+        public static JsonSerializer Default { get; } = new(new JsonSerializerConfig());
 
         private readonly System.Text.Json.JsonSerializerOptions options;
 

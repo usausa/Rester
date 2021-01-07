@@ -95,7 +95,7 @@ namespace Rester
                     await using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
 #endif
                     {
-                        if (progress != null)
+                        if (progress is not null)
                         {
                             var totalSize = response.Content.Headers.ContentLength ??
                                             config.LengthResolver?.Invoke(new LengthResolveContext(response));

@@ -108,7 +108,7 @@ namespace Rester
 
                     using (var multipart = new MultipartFormDataContent())
                     {
-                        if (parameters != null)
+                        if (parameters is not null)
                         {
                             foreach (var parameter in parameters)
                             {
@@ -119,7 +119,7 @@ namespace Rester
                         }
 
                         var progressProxy = default(Action<long>);
-                        if (progress != null)
+                        if (progress is not null)
                         {
                             var totalSize = CalcTotalSize(entries);
                             if (totalSize.HasValue)
@@ -207,7 +207,7 @@ namespace Rester
 
             protected override bool TryComputeLength(out long length)
             {
-                if ((filter == null) && source.CanSeek)
+                if ((filter is null) && source.CanSeek)
                 {
                     length = source.Length;
                     return true;
@@ -219,9 +219,9 @@ namespace Rester
 
             protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
             {
-                if (progress == null)
+                if (progress is null)
                 {
-                    if (filter == null)
+                    if (filter is null)
                     {
                         await source.CopyToAsync(stream, bufferSize, cancel).ConfigureAwait(false);
                         return;
@@ -231,7 +231,7 @@ namespace Rester
                     return;
                 }
 
-                if (filter == null)
+                if (filter is null)
                 {
                     await CopyAsync(source, stream, bufferSize, progress, cancel).ConfigureAwait(false);
                     return;

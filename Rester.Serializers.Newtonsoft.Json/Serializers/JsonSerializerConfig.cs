@@ -7,7 +7,7 @@ namespace Rester.Serializers
     {
         public string ContentType { get; set; } = "application/json";
 
-        public JsonSerializerSettings Settings { get; } = new JsonSerializerSettings
+        public JsonSerializerSettings Settings { get; } = new()
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
         };
