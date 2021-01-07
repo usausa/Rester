@@ -6,6 +6,7 @@ namespace Rester
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Rester.Transfer;
 
     public static partial class HttpClientExtensions
@@ -88,7 +89,11 @@ namespace Rester
                         return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
                     }
 
+#if NET5_0
+                    await using (var input = await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false))
+#else
                     await using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+#endif
                     {
                         if (progress != null)
                         {
@@ -99,9 +104,9 @@ namespace Rester
                                 var buffer = new byte[config.TransferBufferSize];
                                 var totalProcessed = 0L;
                                 int read;
-                                while ((read = await input.ReadAsync(buffer, 0, buffer.Length, cancel).ConfigureAwait(false)) > 0)
+                                while ((read = await input.ReadAsync(buffer, cancel).ConfigureAwait(false)) > 0)
                                 {
-                                    await stream.WriteAsync(buffer, 0, read, cancel).ConfigureAwait(false);
+                                    await stream.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
 
                                     totalProcessed += read;
                                     progress(totalProcessed, totalSize.Value);

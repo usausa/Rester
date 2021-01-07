@@ -133,7 +133,11 @@ namespace Rester
 
                     try
                     {
+#if NET5_0
+                        var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false);
+#else
                         var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), cancel).ConfigureAwait(false);
+#endif
                         return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
                     }
                     catch (Exception e)
@@ -191,7 +195,7 @@ namespace Rester
                     ? (Stream)new GZipStream(stream, CompressionMode.Compress, true)
                     : new DeflateStream(stream, CompressionMode.Compress, true);
                 return content.CopyToAsync(compressedStream, context)
-                    .ContinueWith(t => compressedStream.Dispose());
+                    .ContinueWith(_ => compressedStream.Dispose());
             }
         }
     }

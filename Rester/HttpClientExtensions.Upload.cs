@@ -244,9 +244,9 @@ namespace Rester
             {
                 var buffer = new byte[bufferSize];
                 int read;
-                while ((read = await source.ReadAsync(buffer, 0, buffer.Length, cancel).ConfigureAwait(false)) > 0)
+                while ((read = await source.ReadAsync(buffer, cancel).ConfigureAwait(false)) > 0)
                 {
-                    await destination.WriteAsync(buffer, 0, read, cancel).ConfigureAwait(false);
+                    await destination.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
                     progress(read);
                 }
 
