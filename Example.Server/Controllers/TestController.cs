@@ -1,9 +1,9 @@
-namespace Example.Server.Areas.Api.Controllers
+namespace Example.Server.Controllers
 {
     using System;
     using System.Linq;
 
-    using Example.Server.Areas.Api.Models;
+    using Example.Server.Models;
 
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;

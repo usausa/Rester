@@ -1,4 +1,4 @@
-namespace Example.Server.Areas.Api.Models
+namespace Example.Server.Models
 {
     public class TestListResponseEntry
     {

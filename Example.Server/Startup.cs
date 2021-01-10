@@ -2,19 +2,15 @@ namespace Example.Server
 {
     using System.Linq;
 
+    using Example.Server.Infrastructure;
+
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.ResponseCompression;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
-
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
-
-    using Smart.AspNetCore;
-    using Smart.AspNetCore.ApplicationModels;
 
     public class Startup
     {
@@ -29,17 +25,14 @@ namespace Example.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddMvc(options =>
+                .AddControllers(options =>
                 {
                     options.Conventions.Add(new LowercaseControllerModelConvention());
                 })
                 .AddJsonOptions(options =>
                 {
-                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                    options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                    options.JsonSerializerOptions.Converters.Add(new DateTimeOffsetConverter());
+                });
 
             services.AddResponseCompression(options =>
             {
@@ -48,43 +41,35 @@ namespace Example.Server
                 options.EnableForHttps = true;
             });
 
-            services.AddSwaggerGen(options =>
+            services.AddSwaggerGen(c =>
             {
-                options.SwaggerDoc("example", new OpenApiInfo { Title = "Example API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Example.Server", Version = "v1" });
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                app.UseHsts();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Example.Server v1"));
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
 
             app.UseResponseCompression();
 
             app.UseRequestDecompress();
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
-
-            app.UseSwagger();
-            app.UseSwaggerUI(options =>
-            {
-                options.SwaggerEndpoint("/swagger/example/swagger.json", "Example API");
+                endpoints.MapControllers();
             });
         }
     }

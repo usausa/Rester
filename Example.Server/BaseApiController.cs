@@ -1,4 +1,4 @@
-namespace Example.Server.Areas.Api
+namespace Example.Server
 {
     using Microsoft.AspNetCore.Mvc;
 
