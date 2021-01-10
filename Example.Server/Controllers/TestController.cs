@@ -39,7 +39,7 @@ namespace Example.Server.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] TestPostRequest request)
         {
-            return request.Value >= 100 ? (IActionResult)Ok() : BadRequest();
+            return request.Value >= 100 ? Ok() : BadRequest();
         }
 
         [HttpGet]

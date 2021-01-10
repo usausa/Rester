@@ -24,7 +24,7 @@ namespace Example.Client
                     ? (long?)length
                     : null;
 
-            var client = new TestClient("https://localhost:44384/");
+            var client = new TestClient("https://localhost:44334/");
 
             // Get
             await client.TestGetSingleAsync().ConfigureAwait(false);
@@ -72,7 +72,7 @@ namespace Example.Client
         {
             Console.WriteLine("==== GetAsync:Single ====");
 
-            var response = await client.GetAsync<TestSingleResponse>("api/test/single/123").ConfigureAwait(false);
+            var response = await client.GetAsync<TestSingleResponse>("test/single/123").ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
@@ -83,7 +83,7 @@ namespace Example.Client
         {
             Console.WriteLine("==== GetAsync:Single ====");
 
-            var response = await client.GetAsync<TestListResponse>("api/test/list?name=usa&count=5").ConfigureAwait(false);
+            var response = await client.GetAsync<TestListResponse>("test/list?name=usa&count=5").ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
@@ -95,7 +95,7 @@ namespace Example.Client
         {
             Console.WriteLine("==== GetAsync:Single ====");
 
-            var response = await client.GetAsync<TestSingleResponse>("api/test/auth").ConfigureAwait(false);
+            var response = await client.GetAsync<TestSingleResponse>("test/auth").ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
@@ -104,7 +104,7 @@ namespace Example.Client
             {
                 { "token", "1234567890" }
             };
-            response = await client.GetAsync<TestSingleResponse>("api/test/auth", headers).ConfigureAwait(false);
+            response = await client.GetAsync<TestSingleResponse>("test/auth", headers).ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
@@ -116,12 +116,12 @@ namespace Example.Client
         {
             Console.WriteLine("==== PostAsync ====");
 
-            var response = await client.PostAsync("api/test/post", new TestPostRequest { Value = 1, Text = "うさうさ" }).ConfigureAwait(false);
+            var response = await client.PostAsync("test/post", new TestPostRequest { Value = 1, Text = "うさうさ" }).ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
 
-            response = await client.PostAsync("api/test/post", new TestPostRequest { Value = 100, Text = "うさうさ" }).ConfigureAwait(false);
+            response = await client.PostAsync("test/post", new TestPostRequest { Value = 100, Text = "うさうさ" }).ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
@@ -131,7 +131,7 @@ namespace Example.Client
         {
             Console.WriteLine("==== PostAsync:Compress ====");
 
-            var response = await client.PostAsync("api/test/post", new TestPostRequest { Value = 100, Text = "うさうさ" }, compress: true).ConfigureAwait(false);
+            var response = await client.PostAsync("test/post", new TestPostRequest { Value = 100, Text = "うさうさ" }, compress: true).ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
@@ -145,7 +145,7 @@ namespace Example.Client
 
             var progress = -1d;
             var response = await client.DownloadAsync(
-                "api/test/download/test.dat",
+                "test/download/test.dat",
                 "test.dat",
                 progress: (processed, total) =>
                 {
@@ -167,7 +167,7 @@ namespace Example.Client
 
             var progress = -1d;
             var response = await client.DownloadAsync(
-                "api/test/download/test.json",
+                "test/download/test.json",
                 "test.json",
                 progress: (processed, total) =>
                 {
@@ -189,7 +189,7 @@ namespace Example.Client
         {
             Console.WriteLine("==== Upload ====");
 
-            var response = await client.UploadAsync("api/test/upload", new MemoryStream(new byte[128]), "file", "test.dat").ConfigureAwait(false);
+            var response = await client.UploadAsync("test/upload", new MemoryStream(new byte[128]), "file", "test.dat").ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
@@ -201,7 +201,7 @@ namespace Example.Client
 
             var progress = -1d;
             var response = await client.UploadAsync(
-                "api/test/upload2",
+                "test/upload2",
                 new List<UploadEntry>
                 {
                     new(new MemoryStream(new byte[128 * 1000]), "file1", "test.txt"),
