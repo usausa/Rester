@@ -1,4 +1,4 @@
-namespace Example.Server.Controllers
+﻿namespace Example.Server.Controllers
 {
     using System;
     using System.Linq;
@@ -87,7 +87,8 @@ namespace Example.Server.Controllers
             log.LogDebug($"File1 length ={request.File1?.Length ?? 0}");
             log.LogDebug($"File2 length ={request.File2?.Length ?? 0}");
 
-            if ((String.IsNullOrEmpty(request.Code) || String.IsNullOrEmpty(request.Tag)) ||
+            if (String.IsNullOrEmpty(request.Code) ||
+                String.IsNullOrEmpty(request.Tag) ||
                 ((request.File1?.Length ?? 0) < 100) || ((request.File2?.Length ?? 0) < 100))
             {
                 return BadRequest();
