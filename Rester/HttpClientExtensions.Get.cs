@@ -11,7 +11,7 @@
         public static ValueTask<IRestResponse<T>> GetAsync<T>(
             this HttpClient client,
             string path,
-            IDictionary<string, object> headers = null,
+            IDictionary<string, object>? headers = null,
             CancellationToken cancel = default)
         {
             return GetAsync<T>(client, RestConfig.Default, path, headers, cancel);
@@ -22,10 +22,10 @@
             this HttpClient client,
             RestConfig config,
             string path,
-            IDictionary<string, object> headers = null,
+            IDictionary<string, object>? headers = null,
             CancellationToken cancel = default)
         {
-            HttpResponseMessage response = null;
+            HttpResponseMessage? response = null;
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Get, path);

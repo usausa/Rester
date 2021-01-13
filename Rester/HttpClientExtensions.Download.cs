@@ -15,8 +15,8 @@
             this HttpClient client,
             string path,
             string filename,
-            IDictionary<string, object> headers = null,
-            Action<long, long> progress = null,
+            IDictionary<string, object>? headers = null,
+            Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
             return DownloadAsync(client, RestConfig.Default, path, filename, headers, progress, cancel);
@@ -28,8 +28,8 @@
             RestConfig config,
             string path,
             string filename,
-            IDictionary<string, object> headers = null,
-            Action<long, long> progress = null,
+            IDictionary<string, object>? headers = null,
+            Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
             var delete = true;
@@ -58,8 +58,8 @@
             this HttpClient client,
             string path,
             Stream stream,
-            IDictionary<string, object> headers = null,
-            Action<long, long> progress = null,
+            IDictionary<string, object>? headers = null,
+            Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
             return DownloadAsync(client, RestConfig.Default, path, stream, headers, progress, cancel);
@@ -71,11 +71,11 @@
             RestConfig config,
             string path,
             Stream stream,
-            IDictionary<string, object> headers = null,
-            Action<long, long> progress = null,
+            IDictionary<string, object>? headers = null,
+            Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
-            HttpResponseMessage response = null;
+            HttpResponseMessage? response = null;
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Get, path);

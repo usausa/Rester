@@ -1,4 +1,4 @@
-namespace Rester.Serializers
+﻿namespace Rester.Serializers
 {
     using System.IO;
     using System.Threading;
@@ -31,11 +31,11 @@ namespace Rester.Serializers
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Ignore")]
-        public ValueTask<T> DeserializeAsync<T>(Stream stream, CancellationToken cancel)
+        public ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancel)
         {
             var sr = new StreamReader(stream);
             var jtr = new JsonTextReader(sr);
-            return new ValueTask<T>(serializer.Deserialize<T>(jtr));
+            return new ValueTask<T?>(serializer.Deserialize<T>(jtr));
         }
     }
 }

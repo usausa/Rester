@@ -16,7 +16,7 @@
             this HttpClient client,
             string path,
             object parameter,
-            IDictionary<string, object> headers = null,
+            IDictionary<string, object>? headers = null,
             bool compress = false,
             CancellationToken cancel = default)
         {
@@ -30,11 +30,11 @@
             RestConfig config,
             string path,
             object parameter,
-            IDictionary<string, object> headers = null,
+            IDictionary<string, object>? headers = null,
             bool compress = false,
             CancellationToken cancel = default)
         {
-            HttpResponseMessage response = null;
+            HttpResponseMessage? response = null;
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Post, path);
@@ -79,7 +79,7 @@
             this HttpClient client,
             string path,
             object parameter,
-            IDictionary<string, object> headers = null,
+            IDictionary<string, object>? headers = null,
             bool compress = false,
             CancellationToken cancel = default)
         {
@@ -93,11 +93,11 @@
             RestConfig config,
             string path,
             object parameter,
-            IDictionary<string, object> headers = null,
+            IDictionary<string, object>? headers = null,
             bool compress = false,
             CancellationToken cancel = default)
         {
-            HttpResponseMessage response = null;
+            HttpResponseMessage? response = null;
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Post, path);
@@ -187,7 +187,7 @@
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Factory")]
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2008:DoNotCreateTasksWithoutPassingATaskScheduler", Justification = "Ignore")]
-            protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
+            protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
             {
                 var compressedStream = contentEncoding == ContentEncoding.Gzip
                     ? (Stream)new GZipStream(stream, CompressionMode.Compress, true)

@@ -1,4 +1,4 @@
-namespace Rester.Serializers
+﻿namespace Rester.Serializers
 {
     using System.IO;
     using System.Threading;
@@ -20,10 +20,10 @@ namespace Rester.Serializers
 
         public async ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel)
         {
-            await System.Text.Json.JsonSerializer.SerializeAsync(stream, obj, obj?.GetType(), options, cancel).ConfigureAwait(false);
+            await System.Text.Json.JsonSerializer.SerializeAsync(stream, obj, obj!.GetType(), options, cancel).ConfigureAwait(false);
         }
 
-        public async ValueTask<T> DeserializeAsync<T>(Stream stream, CancellationToken cancel)
+        public async ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancel)
         {
             return await System.Text.Json.JsonSerializer.DeserializeAsync<T>(stream, options, cancel).ConfigureAwait(false);
         }

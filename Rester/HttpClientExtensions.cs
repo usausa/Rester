@@ -1,4 +1,4 @@
-namespace Rester
+﻿namespace Rester
 {
     using System;
     using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace Rester
             };
         }
 
-        private static void ProcessHeaders(HttpRequestMessage request, IDictionary<string, object> headers)
+        private static void ProcessHeaders(HttpRequestMessage request, IDictionary<string, object>? headers)
         {
             if (headers is null)
             {

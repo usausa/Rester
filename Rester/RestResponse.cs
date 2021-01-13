@@ -1,4 +1,4 @@
-namespace Rester
+﻿namespace Rester
 {
     using System;
     using System.Net;
@@ -9,12 +9,12 @@ namespace Rester
 
         HttpStatusCode StatusCode { get; }
 
-        Exception InnerException { get; }
+        Exception? InnerException { get; }
     }
 
     public interface IRestResponse<out T> : IRestResponse
     {
-        T Content { get; }
+        T? Content { get; }
     }
 
     public sealed class RestResponse<T> : IRestResponse<T>
@@ -23,11 +23,11 @@ namespace Rester
 
         public HttpStatusCode StatusCode { get; }
 
-        public Exception InnerException { get; }
+        public Exception? InnerException { get; }
 
-        public T Content { get; }
+        public T? Content { get; }
 
-        public RestResponse(RestResult restResult, HttpStatusCode statusCode, Exception innerException, T content)
+        public RestResponse(RestResult restResult, HttpStatusCode statusCode, Exception? innerException, T? content)
         {
             RestResult = restResult;
             StatusCode = statusCode;

@@ -1,4 +1,4 @@
-namespace Example.Client
+﻿namespace Example.Client
 {
     using System;
     using System.Globalization;
@@ -9,7 +9,7 @@ namespace Example.Client
     {
         public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return DateTimeOffset.Parse(reader.GetString(), CultureInfo.InvariantCulture);
+            return DateTimeOffset.Parse(reader.GetString()!, CultureInfo.InvariantCulture);
         }
 
         public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)

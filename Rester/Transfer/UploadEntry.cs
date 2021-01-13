@@ -1,4 +1,4 @@
-namespace Rester.Transfer
+﻿namespace Rester.Transfer
 {
     using System;
     using System.IO;
@@ -12,7 +12,7 @@ namespace Rester.Transfer
 
         public string FileName { get; }
 
-        public Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> Filter { get; set; }
+        public Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? Filter { get; set; }
 
         public UploadEntry(Stream stream, string name, string fileName)
         {

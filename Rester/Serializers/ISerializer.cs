@@ -1,4 +1,4 @@
-namespace Rester.Serializers
+﻿namespace Rester.Serializers
 {
     using System.IO;
     using System.Threading;
@@ -10,6 +10,6 @@ namespace Rester.Serializers
 
         ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel);
 
-        ValueTask<T> DeserializeAsync<T>(Stream stream, CancellationToken cancel);
+        ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancel);
     }
 }

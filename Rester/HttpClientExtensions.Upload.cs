@@ -18,10 +18,10 @@
             Stream stream,
             string name,
             string filename,
-            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> filter = null,
-            IDictionary<string, object> parameters = null,
-            IDictionary<string, object> headers = null,
-            Action<long, long> progress = null,
+            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? filter = null,
+            IDictionary<string, object>? parameters = null,
+            IDictionary<string, object>? headers = null,
+            Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
             return UploadAsync(client, RestConfig.Default, path, stream, name, filename, filter, parameters, headers, progress, cancel);
@@ -34,10 +34,10 @@
             Stream stream,
             string name,
             string filename,
-            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> filter = null,
-            IDictionary<string, object> parameters = null,
-            IDictionary<string, object> headers = null,
-            Action<long, long> progress = null,
+            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? filter = null,
+            IDictionary<string, object>? parameters = null,
+            IDictionary<string, object>? headers = null,
+            Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
             return UploadAsync(client, config, path, new[] { new UploadEntry(stream, name, filename) { Filter = filter } }, parameters, headers, progress, cancel);
@@ -48,10 +48,10 @@
             string path,
             string name,
             string filename,
-            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> filter = null,
-            IDictionary<string, object> parameters = null,
-            IDictionary<string, object> headers = null,
-            Action<long, long> progress = null,
+            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? filter = null,
+            IDictionary<string, object>? parameters = null,
+            IDictionary<string, object>? headers = null,
+            Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
             return UploadAsync(client, RestConfig.Default, path, name, filename, filter, parameters, headers, progress, cancel);
@@ -63,10 +63,10 @@
             string path,
             string name,
             string filename,
-            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> filter = null,
-            IDictionary<string, object> parameters = null,
-            IDictionary<string, object> headers = null,
-            Action<long, long> progress = null,
+            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? filter = null,
+            IDictionary<string, object>? parameters = null,
+            IDictionary<string, object>? headers = null,
+            Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
             var fi = new FileInfo(filename);
@@ -78,9 +78,9 @@
             this HttpClient client,
             string path,
             IList<UploadEntry> entries,
-            IDictionary<string, object> parameters = null,
-            IDictionary<string, object> headers = null,
-            Action<long, long> progress = null,
+            IDictionary<string, object>? parameters = null,
+            IDictionary<string, object>? headers = null,
+            Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
             return UploadAsync(client, RestConfig.Default, path, entries, parameters, headers, progress, cancel);
@@ -92,12 +92,12 @@
             RestConfig config,
             string path,
             IList<UploadEntry> entries,
-            IDictionary<string, object> parameters = null,
-            IDictionary<string, object> headers = null,
-            Action<long, long> progress = null,
+            IDictionary<string, object>? parameters = null,
+            IDictionary<string, object>? headers = null,
+            Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
-            HttpResponseMessage response = null;
+            HttpResponseMessage? response = null;
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Post, path);
@@ -110,7 +110,7 @@
                     foreach (var parameter in parameters)
                     {
 #pragma warning disable CA2000
-                        multipart.Add(new StringContent(parameter.Value.ToString()), parameter.Key);
+                        multipart.Add(new StringContent(parameter.Value.ToString() ?? string.Empty), parameter.Key);
 #pragma warning restore CA2000
                     }
                 }
@@ -173,15 +173,15 @@
         {
             private readonly Stream source;
 
-            private readonly Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> filter;
+            private readonly Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? filter;
 
             private readonly int bufferSize;
 
-            private readonly Action<long> progress;
+            private readonly Action<long>? progress;
 
             private readonly CancellationToken cancel;
 
-            public UploadStreamContent(UploadEntry entry, int bufferSize, Action<long> progress, CancellationToken cancel)
+            public UploadStreamContent(UploadEntry entry, int bufferSize, Action<long>? progress, CancellationToken cancel)
             {
                 source = entry.Stream;
                 filter = entry.Filter;
@@ -212,7 +212,7 @@
                 return false;
             }
 
-            protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
+            protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)
             {
                 if (progress is null)
                 {
