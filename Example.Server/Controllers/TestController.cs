@@ -69,7 +69,7 @@
         }
 
         [HttpPost]
-        public IActionResult Upload(IFormFile file)
+        public IActionResult Upload(IFormFile? file)
         {
             log.LogDebug($"File length ={file?.Length ?? 0}");
 
