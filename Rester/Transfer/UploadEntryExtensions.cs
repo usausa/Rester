@@ -1,4 +1,4 @@
-namespace Rester.Transfer
+﻿namespace Rester.Transfer
 {
     using System;
     using System.IO;
@@ -10,18 +10,14 @@ namespace Rester.Transfer
     {
         private static readonly Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> GzipFilter = async (source, destination, task) =>
         {
-            await using (var compressedStream = (Stream)new GZipStream(destination, CompressionMode.Compress, true))
-            {
-                await task(source, compressedStream);
-            }
+            await using var compressedStream = (Stream)new GZipStream(destination, CompressionMode.Compress, true);
+            await task(source, compressedStream);
         };
 
         private static readonly Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> DeflateFilter = async (source, destination, task) =>
         {
-            await using (var compressedStream = (Stream)new DeflateStream(destination, CompressionMode.Compress, true))
-            {
-                await task(source, compressedStream);
-            }
+            await using var compressedStream = (Stream)new DeflateStream(destination, CompressionMode.Compress, true);
+            await task(source, compressedStream);
         };
 
         public static UploadEntry WithGzip(this UploadEntry entry)

@@ -1,4 +1,4 @@
-namespace Rester
+﻿namespace Rester
 {
     using System;
     using System.Collections.Generic;
@@ -28,29 +28,28 @@ namespace Rester
             HttpResponseMessage response = null;
             try
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Get, path))
+                using var request = new HttpRequestMessage(HttpMethod.Get, path);
+
+                ProcessHeaders(request, headers);
+
+                response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
                 {
-                    ProcessHeaders(request, headers);
+                    return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
+                }
 
-                    response = await client.SendAsync(request, cancel).ConfigureAwait(false);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
-                    }
-
-                    try
-                    {
+                try
+                {
 #if NET5_0
-                        var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false);
+                    var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false);
 #else
-                        var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), cancel).ConfigureAwait(false);
+                    var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), cancel).ConfigureAwait(false);
 #endif
-                        return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
-                    }
-                    catch (Exception e)
-                    {
-                        return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
-                    }
+                    return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
+                }
+                catch (Exception e)
+                {
+                    return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
                 }
             }
             catch (Exception e)

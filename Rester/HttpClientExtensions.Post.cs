@@ -1,4 +1,4 @@
-namespace Rester
+﻿namespace Rester
 {
     using System;
     using System.Collections.Generic;
@@ -37,38 +37,37 @@ namespace Rester
             HttpResponseMessage response = null;
             try
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Post, path))
-                await using (var stream = new MemoryStream())
+                using var request = new HttpRequestMessage(HttpMethod.Post, path);
+                await using var stream = new MemoryStream();
+
+                ProcessHeaders(request, headers);
+
+                try
                 {
-                    ProcessHeaders(request, headers);
-
-                    try
-                    {
-                        await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
-                    }
-                    catch (Exception e)
-                    {
-                        return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
-                    }
-
-                    stream.Seek(0, SeekOrigin.Begin);
-                    var content = (HttpContent)new StreamContent(stream);
-                    content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
-                    if (compress)
-                    {
-                        content = new CompressedContent(content, config.ContentEncoding);
-                    }
-
-                    request.Content = content;
-
-                    response = await client.SendAsync(request, cancel).ConfigureAwait(false);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
-                    }
-
-                    return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
+                    await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
                 }
+                catch (Exception e)
+                {
+                    return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
+                }
+
+                stream.Seek(0, SeekOrigin.Begin);
+                var content = (HttpContent)new StreamContent(stream);
+                content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
+                if (compress)
+                {
+                    content = new CompressedContent(content, config.ContentEncoding);
+                }
+
+                request.Content = content;
+
+                response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
+                }
+
+                return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
             }
             catch (Exception e)
             {
@@ -101,49 +100,48 @@ namespace Rester
             HttpResponseMessage response = null;
             try
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Post, path))
-                await using (var stream = new MemoryStream())
+                using var request = new HttpRequestMessage(HttpMethod.Post, path);
+                await using var stream = new MemoryStream();
+
+                ProcessHeaders(request, headers);
+
+                try
                 {
-                    ProcessHeaders(request, headers);
+                    await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    return new RestResponse<T>(RestResult.SerializeError, 0, e, default);
+                }
 
-                    try
-                    {
-                        await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
-                    }
-                    catch (Exception e)
-                    {
-                        return new RestResponse<T>(RestResult.SerializeError, 0, e, default);
-                    }
+                stream.Seek(0, SeekOrigin.Begin);
+                var content = (HttpContent)new StreamContent(stream);
+                content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
+                if (compress)
+                {
+                    content = new CompressedContent(content, config.ContentEncoding);
+                }
 
-                    stream.Seek(0, SeekOrigin.Begin);
-                    var content = (HttpContent)new StreamContent(stream);
-                    content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
-                    if (compress)
-                    {
-                        content = new CompressedContent(content, config.ContentEncoding);
-                    }
+                request.Content = content;
 
-                    request.Content = content;
+                response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
+                }
 
-                    response = await client.SendAsync(request, cancel).ConfigureAwait(false);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
-                    }
-
-                    try
-                    {
+                try
+                {
 #if NET5_0
-                        var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false);
+                    var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false);
 #else
-                        var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), cancel).ConfigureAwait(false);
+                    var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), cancel).ConfigureAwait(false);
 #endif
-                        return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
-                    }
-                    catch (Exception e)
-                    {
-                        return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
-                    }
+                    return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
+                }
+                catch (Exception e)
+                {
+                    return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
                 }
             }
             catch (Exception e)

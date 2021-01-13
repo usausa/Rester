@@ -1,4 +1,4 @@
-namespace Rester
+﻿namespace Rester
 {
     using System;
     using System.Collections.Generic;
@@ -35,16 +35,15 @@ namespace Rester
             var delete = true;
             try
             {
-                await using (var stream = new FileStream(filename, FileMode.Create))
-                {
-                    var result = await DownloadAsync(client, config, path, stream, headers, progress, cancel).ConfigureAwait(false);
-                    if (result.IsSuccess())
-                    {
-                        delete = false;
-                    }
+                await using var stream = new FileStream(filename, FileMode.Create);
 
-                    return result;
+                var result = await DownloadAsync(client, config, path, stream, headers, progress, cancel).ConfigureAwait(false);
+                if (result.IsSuccess())
+                {
+                    delete = false;
                 }
+
+                return result;
             }
             finally
             {
@@ -79,43 +78,37 @@ namespace Rester
             HttpResponseMessage response = null;
             try
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Get, path))
-                {
-                    ProcessHeaders(request, headers);
+                using var request = new HttpRequestMessage(HttpMethod.Get, path);
 
-                    response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
-                    }
+                ProcessHeaders(request, headers);
+
+                response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
+                }
 
 #if NET5_0
-                    await using (var input = await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false))
+                await using (var input = await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false))
 #else
-                    await using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                await using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
 #endif
+                {
+                    if (progress is not null)
                     {
-                        if (progress is not null)
+                        var totalSize = response.Content.Headers.ContentLength ??
+                                        config.LengthResolver?.Invoke(new LengthResolveContext(response));
+                        if (totalSize.HasValue)
                         {
-                            var totalSize = response.Content.Headers.ContentLength ??
-                                            config.LengthResolver?.Invoke(new LengthResolveContext(response));
-                            if (totalSize.HasValue)
+                            var buffer = new byte[config.TransferBufferSize];
+                            var totalProcessed = 0L;
+                            int read;
+                            while ((read = await input.ReadAsync(buffer, cancel).ConfigureAwait(false)) > 0)
                             {
-                                var buffer = new byte[config.TransferBufferSize];
-                                var totalProcessed = 0L;
-                                int read;
-                                while ((read = await input.ReadAsync(buffer, cancel).ConfigureAwait(false)) > 0)
-                                {
-                                    await stream.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
+                                await stream.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
 
-                                    totalProcessed += read;
-                                    progress(totalProcessed, totalSize.Value);
-                                }
-                            }
-                            else
-                            {
-                                await input.CopyToAsync(stream, config.TransferBufferSize, cancel).ConfigureAwait(false);
-                                await stream.FlushAsync(cancel).ConfigureAwait(false);
+                                totalProcessed += read;
+                                progress(totalProcessed, totalSize.Value);
                             }
                         }
                         else
@@ -124,9 +117,14 @@ namespace Rester
                             await stream.FlushAsync(cancel).ConfigureAwait(false);
                         }
                     }
-
-                    return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
+                    else
+                    {
+                        await input.CopyToAsync(stream, config.TransferBufferSize, cancel).ConfigureAwait(false);
+                        await stream.FlushAsync(cancel).ConfigureAwait(false);
+                    }
                 }
+
+                return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
             }
             catch (Exception e)
             {

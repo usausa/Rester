@@ -1,4 +1,4 @@
-namespace Rester
+﻿namespace Rester
 {
     using System;
     using System.Collections.Generic;
@@ -70,10 +70,8 @@ namespace Rester
             CancellationToken cancel = default)
         {
             var fi = new FileInfo(filename);
-            await using (var stream = fi.OpenRead())
-            {
-                return await UploadAsync(client, config, path, new[] { new UploadEntry(stream, name, fi.Name) { Filter = filter } }, parameters, headers, progress, cancel).ConfigureAwait(false);
-            }
+            await using var stream = fi.OpenRead();
+            return await UploadAsync(client, config, path, new[] { new UploadEntry(stream, name, fi.Name) { Filter = filter } }, parameters, headers, progress, cancel).ConfigureAwait(false);
         }
 
         public static ValueTask<IRestResponse> UploadAsync(
@@ -102,55 +100,52 @@ namespace Rester
             HttpResponseMessage response = null;
             try
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Post, path))
+                using var request = new HttpRequestMessage(HttpMethod.Post, path);
+                using var multipart = new MultipartFormDataContent();
+
+                ProcessHeaders(request, headers);
+
+                if (parameters is not null)
                 {
-                    ProcessHeaders(request, headers);
-
-                    using (var multipart = new MultipartFormDataContent())
+                    foreach (var parameter in parameters)
                     {
-                        if (parameters is not null)
-                        {
-                            foreach (var parameter in parameters)
-                            {
 #pragma warning disable CA2000
-                                multipart.Add(new StringContent(parameter.Value.ToString()), parameter.Key);
+                        multipart.Add(new StringContent(parameter.Value.ToString()), parameter.Key);
 #pragma warning restore CA2000
-                            }
-                        }
-
-                        var progressProxy = default(Action<long>);
-                        if (progress is not null)
-                        {
-                            var totalSize = CalcTotalSize(entries);
-                            if (totalSize.HasValue)
-                            {
-                                var totalProcessed = 0L;
-                                progressProxy = processed =>
-                                {
-                                    totalProcessed += processed;
-                                    progress(totalProcessed, totalSize.Value);
-                                };
-                            }
-                        }
-
-                        foreach (var upload in entries)
-                        {
-#pragma warning disable CA2000
-                            multipart.Add(new UploadStreamContent(upload, config.TransferBufferSize, progressProxy, cancel), upload.Name, upload.FileName);
-#pragma warning restore CA2000
-                        }
-
-                        request.Content = multipart;
-
-                        response = await client.SendAsync(request, cancel).ConfigureAwait(false);
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
-                        }
-
-                        return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
                     }
                 }
+
+                var progressProxy = default(Action<long>);
+                if (progress is not null)
+                {
+                    var totalSize = CalcTotalSize(entries);
+                    if (totalSize.HasValue)
+                    {
+                        var totalProcessed = 0L;
+                        progressProxy = processed =>
+                        {
+                            totalProcessed += processed;
+                            progress(totalProcessed, totalSize.Value);
+                        };
+                    }
+                }
+
+                foreach (var upload in entries)
+                {
+#pragma warning disable CA2000
+                    multipart.Add(new UploadStreamContent(upload, config.TransferBufferSize, progressProxy, cancel), upload.Name, upload.FileName);
+#pragma warning restore CA2000
+                }
+
+                request.Content = multipart;
+
+                response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
+                }
+
+                return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
             }
             catch (Exception e)
             {
