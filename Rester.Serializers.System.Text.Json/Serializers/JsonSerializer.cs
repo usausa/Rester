@@ -1,4 +1,4 @@
-﻿namespace Rester.Serializers
+namespace Rester.Serializers
 {
     using System.IO;
     using System.Threading;

@@ -1,4 +1,4 @@
-﻿namespace Rester.Transfer
+namespace Rester.Transfer
 {
     using System;
     using System.IO;

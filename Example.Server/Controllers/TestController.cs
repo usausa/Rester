@@ -1,4 +1,4 @@
-﻿namespace Example.Server.Controllers
+namespace Example.Server.Controllers
 {
     using System;
     using System.Linq;

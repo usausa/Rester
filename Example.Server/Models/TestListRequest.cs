@@ -1,4 +1,4 @@
-﻿namespace Example.Server.Models
+namespace Example.Server.Models
 {
     using System.Diagnostics.CodeAnalysis;
 

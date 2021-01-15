@@ -1,4 +1,4 @@
-﻿namespace Rester
+namespace Rester
 {
     using System;
     using System.Net;

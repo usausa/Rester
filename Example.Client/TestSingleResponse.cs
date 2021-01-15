@@ -1,4 +1,4 @@
-﻿namespace Example.Client
+namespace Example.Client
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
