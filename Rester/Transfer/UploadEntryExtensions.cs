@@ -5,7 +5,6 @@ namespace Rester.Transfer
     using System.IO.Compression;
     using System.Threading.Tasks;
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2008:DoNotCreateTasksWithoutPassingATaskScheduler", Justification = "Ignore")]
     public static class UploadEntryExtensions
     {
         private static readonly Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> GzipFilter = async (source, destination, task) =>

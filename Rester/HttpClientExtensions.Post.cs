@@ -24,7 +24,6 @@ namespace Rester
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Ignore")]
         public static async ValueTask<IRestResponse> PostAsync(
             this HttpClient client,
             RestConfig config,
@@ -87,7 +86,6 @@ namespace Rester
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Ignore")]
         public static async ValueTask<IRestResponse<T>> PostAsync<T>(
             this HttpClient client,
             RestConfig config,
