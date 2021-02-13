@@ -12,6 +12,7 @@ namespace Example.Server.Models
 
     public class TestListResponse
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Performance")]
         [AllowNull]
         public TestListResponseEntry[] Entries { get; set; }
     }
