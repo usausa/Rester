@@ -21,7 +21,7 @@ namespace Example.Client
             });
             RestConfig.Default.LengthResolver = ctx =>
                 Int64.TryParse(ctx.GetValues("X-OriginalLength").FirstOrDefault(), out var length)
-                    ? (long?)length
+                    ? length
                     : null;
 
             var client = new TestClient("https://localhost:44334/");
