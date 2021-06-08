@@ -33,19 +33,17 @@ namespace Rester
                 ProcessHeaders(request, headers);
 
                 response = await client.SendAsync(request, cancel).ConfigureAwait(false);
-                if (!response.IsSuccessStatusCode)
-                {
-                    return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
-                }
 
+                var isJson = response.Content.Headers.ContentType?.MediaType is not null &&
+                             response.Content.Headers.ContentType.MediaType.Contains("json", StringComparison.OrdinalIgnoreCase);
                 try
                 {
 #if NET5_0
-                    var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false);
+                    var obj = isJson ? await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false) : default;
 #else
-                    var obj = await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), cancel).ConfigureAwait(false);
+                    var obj = isJson ? await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), cancel).ConfigureAwait(false) : default;
 #endif
-                    return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
+                    return new RestResponse<T>(response.IsSuccessStatusCode ? RestResult.Success : RestResult.HttpError, response.StatusCode, null, obj);
                 }
                 catch (Exception e)
                 {
