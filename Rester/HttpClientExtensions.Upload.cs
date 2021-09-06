@@ -153,7 +153,7 @@ namespace Rester
             }
         }
 
-        private static long? CalcTotalSize(IList<UploadEntry> entries)
+        private static long? CalcTotalSize(IEnumerable<UploadEntry> entries)
         {
             var total = 0L;
             foreach (var upload in entries)

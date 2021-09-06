@@ -1,6 +1,7 @@
 namespace Example.Server.Models
 {
     using System.Diagnostics.CodeAnalysis;
+
     using Microsoft.AspNetCore.Http;
 
     public class TestUploadRequest

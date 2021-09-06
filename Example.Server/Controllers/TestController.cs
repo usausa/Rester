@@ -56,7 +56,7 @@ namespace Example.Server.Controllers
         [HttpGet("{filename}")]
         public IActionResult Download(string filename)
         {
-            var size = 100 * 1000 * 1000;
+            const int size = 100 * 1000 * 1000;
 
             if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {

@@ -9,7 +9,7 @@ namespace Rester.Serializers
 
         public JsonSerializerSettings Settings { get; } = new()
         {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
     }
 }
