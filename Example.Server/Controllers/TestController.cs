@@ -1,8 +1,10 @@
 namespace Example.Server.Controllers
 {
     using System;
+    using System.IO;
     using System.Linq;
 
+    using Example.Server.Infrastructure;
     using Example.Server.Models;
 
     using Microsoft.AspNetCore.Http;
@@ -69,7 +71,19 @@ namespace Example.Server.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upload(IFormFile? file)
+        [ReadableBodyStream]
+        public IActionResult Upload()
+        {
+            log.LogDebug($"Request length ={Request.Body.Length}");
+
+            using var ms = new MemoryStream();
+            Request.Body.CopyTo(ms);
+
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult Upload2(IFormFile? file)
         {
             log.LogDebug($"File length ={file?.Length ?? 0}");
 
@@ -82,7 +96,7 @@ namespace Example.Server.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upload2(TestUploadRequest request)
+        public IActionResult Upload3(TestUploadRequest request)
         {
             log.LogDebug($"File1 length ={request.File1?.Length ?? 0}");
             log.LogDebug($"File2 length ={request.File2?.Length ?? 0}");

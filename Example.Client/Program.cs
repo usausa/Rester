@@ -40,7 +40,7 @@ namespace Example.Client
             await client.TestDownloadWithDecompressAsync().ConfigureAwait(false);
 
             // Upload
-            await client.TestUploadAsync().ConfigureAwait(false);
+            await client.TestMultipartUploadAsync().ConfigureAwait(false);
             await client.TestUploadMultipleWithParameterAsync().ConfigureAwait(false);
         }
     }
@@ -185,11 +185,13 @@ namespace Example.Client
 
         // Upload
 
-        public async ValueTask TestUploadAsync()
+        // TODO
+
+        public async ValueTask TestMultipartUploadAsync()
         {
             Console.WriteLine("==== Upload ====");
 
-            var response = await client.UploadAsync("test/upload", new MemoryStream(new byte[128]), "file", "test.dat").ConfigureAwait(false);
+            var response = await client.MultipartUploadAsync("test/upload2", new MemoryStream(new byte[128]), "file", "test.dat").ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
@@ -200,12 +202,12 @@ namespace Example.Client
             Console.WriteLine("==== Upload:Multiple:Parameter ====");
 
             var progress = -1d;
-            var response = await client.UploadAsync(
-                "test/upload2",
-                new List<UploadEntry>
+            var response = await client.MultipartUploadAsync(
+                "test/upload3",
+                new List<MultipartUploadEntry>
                 {
                     new(new MemoryStream(new byte[128 * 1000]), "file1", "test.txt"),
-                    new UploadEntry(new MemoryStream(new byte[128 * 1000]), "file2", "test.csv").WithGzip()
+                    new MultipartUploadEntry(new MemoryStream(new byte[128 * 1000]), "file2", "test.csv").WithGzip()
                 },
                 new Dictionary<string, object>
                 {

@@ -4,7 +4,7 @@ namespace Rester.Transfer
     using System.IO;
     using System.Threading.Tasks;
 
-    public class UploadEntry
+    public class MultipartUploadEntry
     {
         public Stream Stream { get; }
 
@@ -14,7 +14,7 @@ namespace Rester.Transfer
 
         public Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? Filter { get; set; }
 
-        public UploadEntry(Stream stream, string name, string fileName)
+        public MultipartUploadEntry(Stream stream, string name, string fileName)
         {
             Stream = stream;
             Name = name;

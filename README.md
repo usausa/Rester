@@ -33,12 +33,12 @@ var response = await client.DownloadAsync(
     });
 
 // Multiple file upload with other parameter and progress
-var response = await client.UploadAsync(
+var response = await client.MultipartUploadAsync(
     "api/test/upload",
     new List<UploadEntry>
     {
-        new UploadEntry(stream1, "file1", "test.txt"),
-        new UploadEntry(stream2, "file2", "test.csv").WithGzip()
+        new MultipartUploadEntry(stream1, "file1", "test.txt"),
+        new MultipartUploadEntry(stream2, "file2", "test.csv").WithGzip()
     },
     new Dictionary<string, object>
     {
@@ -201,7 +201,7 @@ public static async Task<IRestResponse> DownloadAsync(
 ### Upload
 
 ```csharp
-public static Task<IRestResponse> UploadAsync(
+public static Task<IRestResponse> MultipartUploadAsync(
     this HttpClient client,
     string path,
     Stream stream,
@@ -213,7 +213,7 @@ public static Task<IRestResponse> UploadAsync(
     Action<long, long> progress = null,
     CancellationToken cancel = default);
 
-public static Task<IRestResponse> UploadAsync(
+public static Task<IRestResponse> MultipartUploadAsync(
     this HttpClient client,
     RestConfig config,
     string path,
@@ -226,7 +226,7 @@ public static Task<IRestResponse> UploadAsync(
     Action<long, long> progress = null,
     CancellationToken cancel = default);
 
-public static Task<IRestResponse> UploadAsync(
+public static Task<IRestResponse> MultipartUploadAsync(
     this HttpClient client,
     string path,
     string name,
@@ -237,7 +237,7 @@ public static Task<IRestResponse> UploadAsync(
     Action<long, long> progress = null,
     CancellationToken cancel = default);
 
-public static async Task<IRestResponse> UploadAsync(
+public static async Task<IRestResponse> MultipartUploadAsync(
     this HttpClient client,
     RestConfig config,
     string path,
@@ -249,7 +249,7 @@ public static async Task<IRestResponse> UploadAsync(
     Action<long, long> progress = null,
     CancellationToken cancel = default);
 
-public static Task<IRestResponse> UploadAsync(
+public static Task<IRestResponse> MultipartUploadAsync(
     this HttpClient client,
     string path,
     IList<UploadEntry> entries,
@@ -258,7 +258,7 @@ public static Task<IRestResponse> UploadAsync(
     Action<long, long> progress = null,
     CancellationToken cancel = default);
 
-public static async Task<IRestResponse> UploadAsync(
+public static async Task<IRestResponse> MultipartUploadAsync(
     this HttpClient client,
     RestConfig config,
     string path,
