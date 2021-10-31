@@ -3,12 +3,11 @@ namespace Rester
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Net;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Rester.Transfer;
+    using Rester.Internal;
 
     public static partial class HttpClientExtensions
     {
@@ -18,13 +17,13 @@ namespace Rester
             Stream stream,
             string name,
             string filename,
-            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? filter = null,
             IDictionary<string, object>? parameters = null,
             IDictionary<string, object>? headers = null,
+            CompressOption compress = CompressOption.None,
             Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
-            return MultipartUploadAsync(client, RestConfig.Default, path, stream, name, filename, filter, parameters, headers, progress, cancel);
+            return MultipartUploadAsync(client, RestConfig.Default, path, stream, name, filename, parameters, headers, compress, progress, cancel);
         }
 
         public static ValueTask<IRestResponse> MultipartUploadAsync(
@@ -34,13 +33,13 @@ namespace Rester
             Stream stream,
             string name,
             string filename,
-            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? filter = null,
             IDictionary<string, object>? parameters = null,
             IDictionary<string, object>? headers = null,
+            CompressOption compress = CompressOption.None,
             Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
-            return MultipartUploadAsync(client, config, path, new[] { new MultipartUploadEntry(stream, name, filename) { Filter = filter } }, parameters, headers, progress, cancel);
+            return MultipartUploadAsync(client, config, path, new[] { new MultipartUploadEntry(stream, name, filename, compress) }, parameters, headers, progress, cancel);
         }
 
         public static ValueTask<IRestResponse> MultipartUploadAsync(
@@ -48,13 +47,13 @@ namespace Rester
             string path,
             string name,
             string filename,
-            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? filter = null,
+            CompressOption compress = CompressOption.None,
             IDictionary<string, object>? parameters = null,
             IDictionary<string, object>? headers = null,
             Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
-            return MultipartUploadAsync(client, RestConfig.Default, path, name, filename, filter, parameters, headers, progress, cancel);
+            return MultipartUploadAsync(client, RestConfig.Default, path, name, filename, parameters, headers, compress, progress, cancel);
         }
 
         public static async ValueTask<IRestResponse> MultipartUploadAsync(
@@ -63,15 +62,15 @@ namespace Rester
             string path,
             string name,
             string filename,
-            Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? filter = null,
             IDictionary<string, object>? parameters = null,
             IDictionary<string, object>? headers = null,
+            CompressOption compress = CompressOption.None,
             Action<long, long>? progress = null,
             CancellationToken cancel = default)
         {
             var fi = new FileInfo(filename);
             await using var stream = fi.OpenRead();
-            return await MultipartUploadAsync(client, config, path, new[] { new MultipartUploadEntry(stream, name, fi.Name) { Filter = filter } }, parameters, headers, progress, cancel).ConfigureAwait(false);
+            return await MultipartUploadAsync(client, config, path, new[] { new MultipartUploadEntry(stream, name, fi.Name, compress) }, parameters, headers, progress, cancel).ConfigureAwait(false);
         }
 
         public static ValueTask<IRestResponse> MultipartUploadAsync(
@@ -115,25 +114,12 @@ namespace Rester
                     }
                 }
 
-                var progressProxy = default(Action<long>);
-                if (progress is not null)
-                {
-                    var totalSize = CalcTotalSize(entries);
-                    if (totalSize.HasValue)
-                    {
-                        var totalProcessed = 0L;
-                        progressProxy = processed =>
-                        {
-                            totalProcessed += processed;
-                            progress(totalProcessed, totalSize.Value);
-                        };
-                    }
-                }
+                var progressProxy = progress is not null ? MakeProgress(entries, progress) : default;
 
                 foreach (var upload in entries)
                 {
 #pragma warning disable CA2000
-                    multipart.Add(new UploadStreamContent(upload, config.TransferBufferSize, progressProxy, cancel), upload.Name, upload.FileName);
+                    multipart.Add(new UploadStreamContent(upload.Stream, config.TransferBufferSize, upload.Compress, progressProxy, cancel), upload.Name, upload.FileName);
 #pragma warning restore CA2000
                 }
 
@@ -153,7 +139,7 @@ namespace Rester
             }
         }
 
-        private static long? CalcTotalSize(IEnumerable<MultipartUploadEntry> entries)
+        private static Action<long>? MakeProgress(IEnumerable<MultipartUploadEntry> entries, Action<long, long> progress)
         {
             var total = 0L;
             foreach (var upload in entries)
@@ -166,87 +152,12 @@ namespace Rester
                 total += upload.Stream.Length;
             }
 
-            return total;
-        }
-
-        private sealed class UploadStreamContent : HttpContent
-        {
-            private readonly Stream source;
-
-            private readonly Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? filter;
-
-            private readonly int bufferSize;
-
-            private readonly Action<long>? progress;
-
-            private readonly CancellationToken cancel;
-
-            public UploadStreamContent(MultipartUploadEntry entry, int bufferSize, Action<long>? progress, CancellationToken cancel)
+            var totalProcessed = 0L;
+            return processed =>
             {
-                source = entry.Stream;
-                filter = entry.Filter;
-                this.bufferSize = bufferSize;
-                this.progress = progress;
-                this.cancel = cancel;
-            }
-
-            protected override void Dispose(bool disposing)
-            {
-                if (disposing)
-                {
-                    source.Dispose();
-                }
-
-                base.Dispose(disposing);
-            }
-
-            protected override bool TryComputeLength(out long length)
-            {
-                if ((filter is null) && source.CanSeek)
-                {
-                    length = source.Length;
-                    return true;
-                }
-
-                length = 0;
-                return false;
-            }
-
-            protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)
-            {
-                if (progress is null)
-                {
-                    if (filter is null)
-                    {
-                        await source.CopyToAsync(stream, bufferSize, cancel).ConfigureAwait(false);
-                        return;
-                    }
-
-                    await filter(source, stream, async (s, d) => await s.CopyToAsync(d, bufferSize, cancel).ConfigureAwait(false)).ConfigureAwait(false);
-                    return;
-                }
-
-                if (filter is null)
-                {
-                    await CopyAsync(source, stream, bufferSize, progress, cancel).ConfigureAwait(false);
-                    return;
-                }
-
-                await filter(source, stream, (s, d) => CopyAsync(s, d, bufferSize, progress, cancel)).ConfigureAwait(false);
-            }
-
-            private static async ValueTask CopyAsync(Stream source, Stream destination, int bufferSize, Action<long> progress, CancellationToken cancel)
-            {
-                var buffer = new byte[bufferSize];
-                int read;
-                while ((read = await source.ReadAsync(buffer, cancel).ConfigureAwait(false)) > 0)
-                {
-                    await destination.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
-                    progress(read);
-                }
-
-                await destination.FlushAsync(cancel).ConfigureAwait(false);
-            }
+                totalProcessed += processed;
+                progress(totalProcessed, total);
+            };
         }
     }
 }

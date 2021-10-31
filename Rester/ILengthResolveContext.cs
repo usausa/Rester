@@ -1,4 +1,4 @@
-namespace Rester.Transfer
+namespace Rester
 {
     using System.Collections.Generic;
 

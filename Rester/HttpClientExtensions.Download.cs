@@ -7,7 +7,7 @@ namespace Rester
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Rester.Transfer;
+    using Rester.Internal;
 
     public static partial class HttpClientExtensions
     {

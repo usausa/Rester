@@ -3,6 +3,7 @@ namespace Example.Server.Controllers
     using System;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using Example.Server.Infrastructure;
     using Example.Server.Models;
@@ -38,12 +39,6 @@ namespace Example.Server.Controllers
             });
         }
 
-        [HttpPost]
-        public IActionResult Post([FromBody] TestPostRequest request)
-        {
-            return request.Value >= 100 ? Ok() : BadRequest();
-        }
-
         [HttpGet]
         public IActionResult Auth([FromHeader] string token)
         {
@@ -53,6 +48,12 @@ namespace Example.Server.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult Post([FromBody] TestPostRequest request)
+        {
+            return request.Value >= 100 ? Ok() : BadRequest();
         }
 
         [HttpGet("{filename}")]
@@ -70,14 +71,14 @@ namespace Example.Server.Controllers
             return File(new byte[size], "application/octet-stream");
         }
 
-        [HttpPost]
+        [HttpPost("{filename}")]
         [ReadableBodyStream]
-        public IActionResult Upload()
+        public async ValueTask<IActionResult> Upload(string filename)
         {
-            log.LogDebug($"Request length ={Request.Body.Length}");
+            await using var ms = new MemoryStream();
+            await Request.Body.CopyToAsync(ms).ConfigureAwait(false);
 
-            using var ms = new MemoryStream();
-            Request.Body.CopyTo(ms);
+            log.LogDebug($"Request filename={filename}, length={ms.Length}");
 
             return Ok();
         }
@@ -85,7 +86,7 @@ namespace Example.Server.Controllers
         [HttpPost]
         public IActionResult Upload2(IFormFile? file)
         {
-            log.LogDebug($"File length ={file?.Length ?? 0}");
+            log.LogDebug($"File length={file?.Length ?? 0}");
 
             if ((file?.Length ?? 0) < 100)
             {
@@ -98,8 +99,8 @@ namespace Example.Server.Controllers
         [HttpPost]
         public IActionResult Upload3(TestUploadRequest request)
         {
-            log.LogDebug($"File1 length ={request.File1?.Length ?? 0}");
-            log.LogDebug($"File2 length ={request.File2?.Length ?? 0}");
+            log.LogDebug($"File1 length={request.File1?.Length ?? 0}");
+            log.LogDebug($"File2 length={request.File2?.Length ?? 0}");
 
             if (String.IsNullOrEmpty(request.Code) ||
                 String.IsNullOrEmpty(request.Tag) ||

@@ -1,8 +1,6 @@
-namespace Rester.Transfer
+namespace Rester
 {
-    using System;
     using System.IO;
-    using System.Threading.Tasks;
 
     public class MultipartUploadEntry
     {
@@ -12,13 +10,14 @@ namespace Rester.Transfer
 
         public string FileName { get; }
 
-        public Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask>? Filter { get; set; }
+        public CompressOption Compress { get; }
 
-        public MultipartUploadEntry(Stream stream, string name, string fileName)
+        public MultipartUploadEntry(Stream stream, string name, string fileName, CompressOption compress = CompressOption.None)
         {
             Stream = stream;
             Name = name;
             FileName = fileName;
+            Compress = compress;
         }
     }
 }

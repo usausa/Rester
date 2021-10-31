@@ -9,7 +9,6 @@ namespace Example.Client
     using System.Threading.Tasks;
 
     using Rester;
-    using Rester.Transfer;
 
     public static class Program
     {
@@ -37,9 +36,13 @@ namespace Example.Client
 
             // Download
             await client.TestDownloadAsync().ConfigureAwait(false);
-            await client.TestDownloadWithDecompressAsync().ConfigureAwait(false);
+            await client.TestDownloadWithCompressAsync().ConfigureAwait(false);
 
             // Upload
+            await client.TestUploadAsync().ConfigureAwait(false);
+            await client.TestUploadWithCompressAsync().ConfigureAwait(false);
+
+            // Upload2
             await client.TestMultipartUploadAsync().ConfigureAwait(false);
             await client.TestUploadMultipleWithParameterAsync().ConfigureAwait(false);
         }
@@ -81,7 +84,7 @@ namespace Example.Client
 
         public async ValueTask TestGetListAsync()
         {
-            Console.WriteLine("==== GetAsync:Single ====");
+            Console.WriteLine("==== GetAsync:List ====");
 
             var response = await client.GetAsync<TestListResponse>("test/list?name=usa&count=5").ConfigureAwait(false);
 
@@ -93,8 +96,9 @@ namespace Example.Client
 
         public async ValueTask TestGetWithHeaderAsync()
         {
-            Console.WriteLine("==== GetAsync:Single ====");
+            Console.WriteLine("==== GetAsync:Auth ====");
 
+            // BadRequest
             var response = await client.GetAsync<TestSingleResponse>("test/auth").ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
@@ -116,6 +120,7 @@ namespace Example.Client
         {
             Console.WriteLine("==== PostAsync ====");
 
+            // BadRequest
             var response = await client.PostAsync("test/post", new TestPostRequest { Value = 1, Text = "うさうさ" }).ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
@@ -131,7 +136,7 @@ namespace Example.Client
         {
             Console.WriteLine("==== PostAsync:Compress ====");
 
-            var response = await client.PostAsync("test/post", new TestPostRequest { Value = 100, Text = "うさうさ" }, compress: true).ConfigureAwait(false);
+            var response = await client.PostAsync("test/post", new TestPostRequest { Value = 100, Text = "うさうさ" }, compress: CompressOption.Gzip).ConfigureAwait(false);
 
             Console.WriteLine($"Result: {response.RestResult}");
             Console.WriteLine($"StatusCode: {response.StatusCode}");
@@ -161,9 +166,9 @@ namespace Example.Client
             Console.WriteLine($"StatusCode: {response.StatusCode}");
         }
 
-        public async ValueTask TestDownloadWithDecompressAsync()
+        public async ValueTask TestDownloadWithCompressAsync()
         {
-            Console.WriteLine("==== Download:Decompress ====");
+            Console.WriteLine("==== Download:Compress ====");
 
             var progress = -1d;
             var response = await client.DownloadAsync(
@@ -185,7 +190,52 @@ namespace Example.Client
 
         // Upload
 
-        // TODO
+        public async ValueTask TestUploadAsync()
+        {
+            Console.WriteLine("==== Upload ====");
+
+            await using var stream = new MemoryStream(Enumerable.Range(0, 1 * 1000 * 1000).Select(x => (byte)(x % 256)).ToArray());
+            var progress = -1d;
+            var response = await client.UploadAsync(
+                "test/upload/test.dat",
+                stream,
+                progress: (processed, total) =>
+                {
+                    var percent = Math.Floor((double)processed / total * 100);
+                    if (percent > progress)
+                    {
+                        progress = percent;
+                        Console.WriteLine($"{processed} / {total} : {progress}");
+                    }
+                }).ConfigureAwait(false);
+
+            Console.WriteLine($"Result: {response.RestResult}");
+            Console.WriteLine($"StatusCode: {response.StatusCode}");
+        }
+
+        public async ValueTask TestUploadWithCompressAsync()
+        {
+            Console.WriteLine("==== Upload:Compress ====");
+
+            await using var stream = new MemoryStream(Enumerable.Range(0, 1 * 1000 * 1000).Select(x => (byte)(x % 256)).ToArray());
+            var progress = -1d;
+            var response = await client.UploadAsync(
+                "test/upload/test.dat",
+                stream,
+                compress: CompressOption.Gzip,
+                progress: (processed, total) =>
+                {
+                    var percent = Math.Floor((double)processed / total * 100);
+                    if (percent > progress)
+                    {
+                        progress = percent;
+                        Console.WriteLine($"{processed} / {total} : {progress}");
+                    }
+                }).ConfigureAwait(false);
+
+            Console.WriteLine($"Result: {response.RestResult}");
+            Console.WriteLine($"StatusCode: {response.StatusCode}");
+        }
 
         public async ValueTask TestMultipartUploadAsync()
         {
@@ -207,7 +257,7 @@ namespace Example.Client
                 new List<MultipartUploadEntry>
                 {
                     new(new MemoryStream(new byte[128 * 1000]), "file1", "test.txt"),
-                    new MultipartUploadEntry(new MemoryStream(new byte[128 * 1000]), "file2", "test.csv").WithGzip()
+                    new(new MemoryStream(new byte[128 * 1000]), "file2", "test.csv", CompressOption.Gzip)
                 },
                 new Dictionary<string, object>
                 {

@@ -1,4 +1,4 @@
-namespace Rester.Transfer
+namespace Rester.Internal
 {
     using System.Collections.Generic;
     using System.Net.Http;
