@@ -78,7 +78,7 @@ namespace Example.Server.Controllers
             await using var ms = new MemoryStream();
             await Request.Body.CopyToAsync(ms).ConfigureAwait(false);
 
-            log.LogDebug($"Request filename={filename}, length={ms.Length}");
+            log.LogDebug("Request filename={Filename}, length={Length}", filename, ms.Length);
 
             return Ok();
         }
@@ -86,7 +86,7 @@ namespace Example.Server.Controllers
         [HttpPost]
         public IActionResult Upload2(IFormFile? file)
         {
-            log.LogDebug($"File length={file?.Length ?? 0}");
+            log.LogDebug("File length={Length}", file?.Length ?? 0);
 
             if ((file?.Length ?? 0) < 100)
             {
@@ -99,8 +99,8 @@ namespace Example.Server.Controllers
         [HttpPost]
         public IActionResult Upload3(TestUploadRequest request)
         {
-            log.LogDebug($"File1 length={request.File1?.Length ?? 0}");
-            log.LogDebug($"File2 length={request.File2?.Length ?? 0}");
+            log.LogDebug("File1 length={Length}", request.File1?.Length ?? 0);
+            log.LogDebug("File2 length={Length}", request.File2?.Length ?? 0);
 
             if (String.IsNullOrEmpty(request.Code) ||
                 String.IsNullOrEmpty(request.Tag) ||
