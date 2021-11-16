@@ -87,7 +87,7 @@ namespace Rester
                     return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
                 }
 
-#if NET5_0
+#if NET5_0_OR_GREATER
                 await using (var input = await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false))
 #else
                 await using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
