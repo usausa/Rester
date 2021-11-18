@@ -4,7 +4,6 @@
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>
-    <LangVersion>latest</LangVersion>
     <NoWarn>$(NoWarn),1573,1591,1712</NoWarn>
     <MSBuildWarningsAsMessages>SA0001</MSBuildWarningsAsMessages>
     <WarningsAsErrors>nullable</WarningsAsErrors>
