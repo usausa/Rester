@@ -75,7 +75,9 @@ namespace Example.Server.Controllers
         [ReadableBodyStream]
         public async ValueTask<IActionResult> Upload(string filename)
         {
+#pragma warning disable CA2007
             await using var ms = new MemoryStream();
+#pragma warning restore CA2007
             await Request.Body.CopyToAsync(ms).ConfigureAwait(false);
 
             log.LogDebug("Request filename={Filename}, length={Length}", filename, ms.Length);

@@ -30,9 +30,11 @@ namespace Example.Server.Infrastructure
             {
                 var stream = new MemoryStream();
 
+#pragma warning disable CA2007
                 await using (var source = encodingType == EncodingType.Gzip
                     ? (Stream)new GZipStream(context.Request.Body, CompressionMode.Decompress, true)
                     : new DeflateStream(context.Request.Body, CompressionMode.Decompress, true))
+#pragma warning restore CA2007
                 {
                     await source.CopyToAsync(stream).ConfigureAwait(false);
                 }
