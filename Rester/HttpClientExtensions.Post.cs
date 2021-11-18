@@ -37,7 +37,9 @@ namespace Rester
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Post, path);
+#pragma warning disable CA2007
                 await using var stream = new MemoryStream();
+#pragma warning restore CA2007
 
                 ProcessHeaders(request, headers);
 
@@ -94,7 +96,9 @@ namespace Rester
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Post, path);
+#pragma warning disable CA2007
                 await using var stream = new MemoryStream();
+#pragma warning restore CA2007
 
                 ProcessHeaders(request, headers);
 

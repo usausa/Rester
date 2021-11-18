@@ -34,7 +34,9 @@ namespace Rester
             CancellationToken cancel = default)
         {
             var fi = new FileInfo(filename);
+#pragma warning disable CA2007
             await using var stream = fi.OpenRead();
+#pragma warning restore CA2007
             return await UploadAsync(client, config, path, stream, headers, compress, progress, cancel).ConfigureAwait(false);
         }
 

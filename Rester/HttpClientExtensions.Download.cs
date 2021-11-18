@@ -34,7 +34,9 @@ namespace Rester
             var delete = true;
             try
             {
+#pragma warning disable CA2007
                 await using var stream = new FileStream(filename, FileMode.Create);
+#pragma warning restore CA2007
 
                 var result = await DownloadAsync(client, config, path, stream, headers, progress, cancel).ConfigureAwait(false);
                 if (result.IsSuccess())
@@ -88,9 +90,13 @@ namespace Rester
                 }
 
 #if NET5_0_OR_GREATER
+#pragma warning disable CA2007
                 await using (var input = await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false))
+#pragma warning restore CA2007
 #else
+#pragma warning disable CA2007
                 await using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+#pragma warning restore CA2007
 #endif
                 {
                     if (progress is not null)

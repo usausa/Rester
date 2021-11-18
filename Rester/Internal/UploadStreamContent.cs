@@ -12,13 +12,17 @@ namespace Rester.Internal
     {
         public static Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> Gzip => async (source, destination, task) =>
         {
+#pragma warning disable CA2007
             await using var compressedStream = (Stream)new GZipStream(destination, CompressionMode.Compress, true);
+#pragma warning restore CA2007
             await task(source, compressedStream).ConfigureAwait(false);
         };
 
         public static Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> Deflate => async (source, destination, task) =>
         {
+#pragma warning disable CA2007
             await using var compressedStream = (Stream)new DeflateStream(destination, CompressionMode.Compress, true);
+#pragma warning restore CA2007
             await task(source, compressedStream).ConfigureAwait(false);
         };
 

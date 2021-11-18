@@ -69,7 +69,9 @@ namespace Rester
             CancellationToken cancel = default)
         {
             var fi = new FileInfo(filename);
+#pragma warning disable CA2007
             await using var stream = fi.OpenRead();
+#pragma warning restore CA2007
             return await MultipartUploadAsync(client, config, path, new[] { new MultipartUploadEntry(stream, name, fi.Name, compress) }, parameters, headers, progress, cancel).ConfigureAwait(false);
         }
 

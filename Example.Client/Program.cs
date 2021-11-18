@@ -194,7 +194,9 @@ namespace Example.Client
         {
             Console.WriteLine("==== Upload ====");
 
+#pragma warning disable CA2007
             await using var stream = new MemoryStream(Enumerable.Range(0, 1 * 1000 * 1000).Select(x => (byte)(x % 256)).ToArray());
+#pragma warning restore CA2007
             var progress = -1d;
             var response = await client.UploadAsync(
                 "test/upload/test.dat",
@@ -217,7 +219,9 @@ namespace Example.Client
         {
             Console.WriteLine("==== Upload:Compress ====");
 
+#pragma warning disable CA2007
             await using var stream = new MemoryStream(Enumerable.Range(0, 1 * 1000 * 1000).Select(x => (byte)(x % 256)).ToArray());
+#pragma warning restore CA2007
             var progress = -1d;
             var response = await client.UploadAsync(
                 "test/upload/test.dat",
