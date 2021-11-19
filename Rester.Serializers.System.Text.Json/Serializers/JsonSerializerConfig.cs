@@ -1,14 +1,13 @@
-namespace Rester.Serializers
+namespace Rester.Serializers;
+
+using System.Text.Json;
+
+public class JsonSerializerConfig
 {
-    using System.Text.Json;
+    public string ContentType { get; set; } = "application/json";
 
-    public class JsonSerializerConfig
+    public JsonSerializerOptions Options { get; } = new()
     {
-        public string ContentType { get; set; } = "application/json";
-
-        public JsonSerializerOptions Options { get; } = new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-    }
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 }

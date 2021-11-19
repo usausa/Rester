@@ -1,15 +1,14 @@
-namespace Rester.Serializers
+namespace Rester.Serializers;
+
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+public interface ISerializer
 {
-    using System.IO;
-    using System.Threading;
-    using System.Threading.Tasks;
+    string ContentType { get; }
 
-    public interface ISerializer
-    {
-        string ContentType { get; }
+    ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel);
 
-        ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel);
-
-        ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancel);
-    }
+    ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancel);
 }

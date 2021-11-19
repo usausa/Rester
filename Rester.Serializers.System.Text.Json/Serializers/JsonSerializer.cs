@@ -1,31 +1,30 @@
-namespace Rester.Serializers
+namespace Rester.Serializers;
+
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+public sealed class JsonSerializer : ISerializer
 {
-    using System.IO;
-    using System.Threading;
-    using System.Threading.Tasks;
+    public static JsonSerializer Default { get; } = new(new JsonSerializerConfig());
 
-    public sealed class JsonSerializer : ISerializer
+    private readonly System.Text.Json.JsonSerializerOptions options;
+
+    public string ContentType { get; }
+
+    public JsonSerializer(JsonSerializerConfig config)
     {
-        public static JsonSerializer Default { get; } = new(new JsonSerializerConfig());
+        options = config.Options;
+        ContentType = config.ContentType;
+    }
 
-        private readonly System.Text.Json.JsonSerializerOptions options;
+    public async ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel)
+    {
+        await System.Text.Json.JsonSerializer.SerializeAsync(stream, obj, obj!.GetType(), options, cancel).ConfigureAwait(false);
+    }
 
-        public string ContentType { get; }
-
-        public JsonSerializer(JsonSerializerConfig config)
-        {
-            options = config.Options;
-            ContentType = config.ContentType;
-        }
-
-        public async ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel)
-        {
-            await System.Text.Json.JsonSerializer.SerializeAsync(stream, obj, obj!.GetType(), options, cancel).ConfigureAwait(false);
-        }
-
-        public async ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancel)
-        {
-            return await System.Text.Json.JsonSerializer.DeserializeAsync<T>(stream, options, cancel).ConfigureAwait(false);
-        }
+    public async ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancel)
+    {
+        return await System.Text.Json.JsonSerializer.DeserializeAsync<T>(stream, options, cancel).ConfigureAwait(false);
     }
 }

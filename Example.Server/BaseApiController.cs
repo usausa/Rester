@@ -1,9 +1,8 @@
-namespace Example.Server
-{
-    using Microsoft.AspNetCore.Mvc;
+namespace Example.Server;
 
-    [Route("[controller]/[action]")]
-    public class BaseApiController : Controller
-    {
-    }
+using Microsoft.AspNetCore.Mvc;
+
+[Route("[controller]/[action]")]
+public class BaseApiController : Controller
+{
 }

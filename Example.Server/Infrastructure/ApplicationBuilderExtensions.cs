@@ -1,12 +1,11 @@
-namespace Example.Server.Infrastructure
-{
-    using Microsoft.AspNetCore.Builder;
+namespace Example.Server.Infrastructure;
 
-    public static class ApplicationBuilderExtensions
+using Microsoft.AspNetCore.Builder;
+
+public static class ApplicationBuilderExtensions
+{
+    public static IApplicationBuilder UseRequestDecompress(this IApplicationBuilder builder)
     {
-        public static IApplicationBuilder UseRequestDecompress(this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<RequestDecompressMiddleware>();
-        }
+        return builder.UseMiddleware<RequestDecompressMiddleware>();
     }
 }

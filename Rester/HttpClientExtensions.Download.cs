@@ -1,125 +1,119 @@
-namespace Rester
+namespace Rester;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Rester.Internal;
+
+public static partial class HttpClientExtensions
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Net.Http;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using Rester.Internal;
-
-    public static partial class HttpClientExtensions
+    public static ValueTask<IRestResponse> DownloadAsync(
+        this HttpClient client,
+        string path,
+        string filename,
+        IDictionary<string, object>? headers = null,
+        Action<long, long>? progress = null,
+        CancellationToken cancel = default)
     {
-        public static ValueTask<IRestResponse> DownloadAsync(
-            this HttpClient client,
-            string path,
-            string filename,
-            IDictionary<string, object>? headers = null,
-            Action<long, long>? progress = null,
-            CancellationToken cancel = default)
-        {
-            return DownloadAsync(client, RestConfig.Default, path, filename, headers, progress, cancel);
-        }
+        return DownloadAsync(client, RestConfig.Default, path, filename, headers, progress, cancel);
+    }
 
-        public static async ValueTask<IRestResponse> DownloadAsync(
-            this HttpClient client,
-            RestConfig config,
-            string path,
-            string filename,
-            IDictionary<string, object>? headers = null,
-            Action<long, long>? progress = null,
-            CancellationToken cancel = default)
+    public static async ValueTask<IRestResponse> DownloadAsync(
+        this HttpClient client,
+        RestConfig config,
+        string path,
+        string filename,
+        IDictionary<string, object>? headers = null,
+        Action<long, long>? progress = null,
+        CancellationToken cancel = default)
+    {
+        var delete = true;
+        try
         {
-            var delete = true;
-            try
-            {
 #pragma warning disable CA2007
-                await using var stream = new FileStream(filename, FileMode.Create);
+            await using var stream = new FileStream(filename, FileMode.Create);
 #pragma warning restore CA2007
 
-                var result = await DownloadAsync(client, config, path, stream, headers, progress, cancel).ConfigureAwait(false);
-                if (result.IsSuccess())
-                {
-                    delete = false;
-                }
-
-                return result;
-            }
-            finally
+            var result = await DownloadAsync(client, config, path, stream, headers, progress, cancel).ConfigureAwait(false);
+            if (result.IsSuccess())
             {
-                if (delete)
-                {
-                    File.Delete(filename);
-                }
+                delete = false;
+            }
+
+            return result;
+        }
+        finally
+        {
+            if (delete)
+            {
+                File.Delete(filename);
             }
         }
+    }
 
-        public static ValueTask<IRestResponse> DownloadAsync(
-            this HttpClient client,
-            string path,
-            Stream stream,
-            IDictionary<string, object>? headers = null,
-            Action<long, long>? progress = null,
-            CancellationToken cancel = default)
-        {
-            return DownloadAsync(client, RestConfig.Default, path, stream, headers, progress, cancel);
-        }
+    public static ValueTask<IRestResponse> DownloadAsync(
+        this HttpClient client,
+        string path,
+        Stream stream,
+        IDictionary<string, object>? headers = null,
+        Action<long, long>? progress = null,
+        CancellationToken cancel = default)
+    {
+        return DownloadAsync(client, RestConfig.Default, path, stream, headers, progress, cancel);
+    }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
-        public static async ValueTask<IRestResponse> DownloadAsync(
-            this HttpClient client,
-            RestConfig config,
-            string path,
-            Stream stream,
-            IDictionary<string, object>? headers = null,
-            Action<long, long>? progress = null,
-            CancellationToken cancel = default)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
+    public static async ValueTask<IRestResponse> DownloadAsync(
+        this HttpClient client,
+        RestConfig config,
+        string path,
+        Stream stream,
+        IDictionary<string, object>? headers = null,
+        Action<long, long>? progress = null,
+        CancellationToken cancel = default)
+    {
+        HttpResponseMessage? response = null;
+        try
         {
-            HttpResponseMessage? response = null;
-            try
+            using var request = new HttpRequestMessage(HttpMethod.Get, path);
+
+            ProcessHeaders(request, headers);
+
+            response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
             {
-                using var request = new HttpRequestMessage(HttpMethod.Get, path);
-
-                ProcessHeaders(request, headers);
-
-                response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
-                if (!response.IsSuccessStatusCode)
-                {
-                    return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
-                }
+                return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
+            }
 
 #if NET5_0_OR_GREATER
 #pragma warning disable CA2007
-                await using (var input = await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false))
+            await using (var input = await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false))
 #pragma warning restore CA2007
 #else
 #pragma warning disable CA2007
-                await using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+            await using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
 #pragma warning restore CA2007
 #endif
+            {
+                if (progress is not null)
                 {
-                    if (progress is not null)
+                    var totalSize = response.Content.Headers.ContentLength ??
+                                    config.LengthResolver?.Invoke(new LengthResolveContext(response));
+                    if (totalSize.HasValue)
                     {
-                        var totalSize = response.Content.Headers.ContentLength ??
-                                        config.LengthResolver?.Invoke(new LengthResolveContext(response));
-                        if (totalSize.HasValue)
+                        var buffer = new byte[config.TransferBufferSize];
+                        var totalProcessed = 0L;
+                        int read;
+                        while ((read = await input.ReadAsync(buffer, cancel).ConfigureAwait(false)) > 0)
                         {
-                            var buffer = new byte[config.TransferBufferSize];
-                            var totalProcessed = 0L;
-                            int read;
-                            while ((read = await input.ReadAsync(buffer, cancel).ConfigureAwait(false)) > 0)
-                            {
-                                await stream.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
+                            await stream.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
 
-                                totalProcessed += read;
-                                progress(totalProcessed, totalSize.Value);
-                            }
-                        }
-                        else
-                        {
-                            await input.CopyToAsync(stream, config.TransferBufferSize, cancel).ConfigureAwait(false);
-                            await stream.FlushAsync(cancel).ConfigureAwait(false);
+                            totalProcessed += read;
+                            progress(totalProcessed, totalSize.Value);
                         }
                     }
                     else
@@ -128,13 +122,18 @@ namespace Rester
                         await stream.FlushAsync(cancel).ConfigureAwait(false);
                     }
                 }
+                else
+                {
+                    await input.CopyToAsync(stream, config.TransferBufferSize, cancel).ConfigureAwait(false);
+                    await stream.FlushAsync(cancel).ConfigureAwait(false);
+                }
+            }
 
-                return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
-            }
-            catch (Exception e)
-            {
-                return MakeErrorResponse<object>(e, response?.StatusCode ?? 0);
-            }
+            return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
+        }
+        catch (Exception e)
+        {
+            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0);
         }
     }
 }

@@ -1,15 +1,14 @@
-namespace Rester.Serializers
+namespace Rester.Serializers;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+
+public class JsonSerializerConfig
 {
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
+    public string ContentType { get; set; } = "application/json";
 
-    public class JsonSerializerConfig
+    public JsonSerializerSettings Settings { get; } = new()
     {
-        public string ContentType { get; set; } = "application/json";
-
-        public JsonSerializerSettings Settings { get; } = new()
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
-    }
+        ContractResolver = new CamelCasePropertyNamesContractResolver()
+    };
 }

@@ -1,12 +1,11 @@
-namespace Example.Client
+namespace Example.Client;
+
+using System.Diagnostics.CodeAnalysis;
+
+public class TestPostRequest
 {
-    using System.Diagnostics.CodeAnalysis;
+    public int Value { get; set; }
 
-    public class TestPostRequest
-    {
-        public int Value { get; set; }
-
-        [AllowNull]
-        public string Text { get; set; }
-    }
+    [AllowNull]
+    public string Text { get; set; }
 }

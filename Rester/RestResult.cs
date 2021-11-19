@@ -1,12 +1,11 @@
-namespace Rester
+namespace Rester;
+
+public enum RestResult
 {
-    public enum RestResult
-    {
-        Success,
-        Cancel,
-        RequestError,
-        HttpError,
-        SerializeError,
-        Unknown
-    }
+    Success,
+    Cancel,
+    RequestError,
+    HttpError,
+    SerializeError,
+    Unknown
 }

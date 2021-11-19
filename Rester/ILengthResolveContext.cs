@@ -1,9 +1,8 @@
-namespace Rester
-{
-    using System.Collections.Generic;
+namespace Rester;
 
-    public interface ILengthResolveContext
-    {
-        IEnumerable<string> GetValues(string name);
-    }
+using System.Collections.Generic;
+
+public interface ILengthResolveContext
+{
+    IEnumerable<string> GetValues(string name);
 }

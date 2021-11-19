@@ -1,19 +1,18 @@
-namespace Rester
+namespace Rester;
+
+using System;
+using System.Diagnostics.CodeAnalysis;
+
+using Rester.Serializers;
+
+public class RestConfig
 {
-    using System;
-    using System.Diagnostics.CodeAnalysis;
+    public static RestConfig Default { get; } = new();
 
-    using Rester.Serializers;
+    [AllowNull]
+    public ISerializer Serializer { get; set; }
 
-    public class RestConfig
-    {
-        public static RestConfig Default { get; } = new();
+    public int TransferBufferSize { get; set; } = 16 * 1024;
 
-        [AllowNull]
-        public ISerializer Serializer { get; set; }
-
-        public int TransferBufferSize { get; set; } = 16 * 1024;
-
-        public Func<ILengthResolveContext, long?>? LengthResolver { get; set; }
-    }
+    public Func<ILengthResolveContext, long?>? LengthResolver { get; set; }
 }

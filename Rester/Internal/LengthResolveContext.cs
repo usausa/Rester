@@ -1,17 +1,16 @@
-namespace Rester.Internal
+namespace Rester.Internal;
+
+using System.Collections.Generic;
+using System.Net.Http;
+
+internal sealed class LengthResolveContext : ILengthResolveContext
 {
-    using System.Collections.Generic;
-    using System.Net.Http;
+    private readonly HttpResponseMessage response;
 
-    internal sealed class LengthResolveContext : ILengthResolveContext
+    public LengthResolveContext(HttpResponseMessage response)
     {
-        private readonly HttpResponseMessage response;
-
-        public LengthResolveContext(HttpResponseMessage response)
-        {
-            this.response = response;
-        }
-
-        public IEnumerable<string> GetValues(string name) => response.Headers.GetValues(name);
+        this.response = response;
     }
+
+    public IEnumerable<string> GetValues(string name) => response.Headers.GetValues(name);
 }

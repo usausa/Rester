@@ -1,9 +1,8 @@
-namespace Rester
+namespace Rester;
+
+public enum CompressOption
 {
-    public enum CompressOption
-    {
-        None,
-        Gzip,
-        Deflate
-    }
+    None,
+    Gzip,
+    Deflate
 }
