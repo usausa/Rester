@@ -23,7 +23,7 @@ public static class Program
                 ? length
                 : null;
 
-        var client = new TestClient("https://localhost:44334/");
+        var client = new TestClient("https://localhost:5001/");
 
         // Get
         await client.TestGetSingleAsync().ConfigureAwait(false);
