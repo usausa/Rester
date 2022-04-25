@@ -1,9 +1,7 @@
 namespace Example.Server.Infrastructure;
 
 using System.Globalization;
-using System.IO;
 using System.IO.Compression;
-using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
 

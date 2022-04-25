@@ -1,10 +1,5 @@
 namespace Example.Server.Controllers;
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
 using Example.Server.Infrastructure;
 using Example.Server.Models;
 
