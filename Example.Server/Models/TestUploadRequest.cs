@@ -1,16 +1,12 @@
 namespace Example.Server.Models;
 
-using System.Diagnostics.CodeAnalysis;
-
 using Microsoft.AspNetCore.Http;
 
 public class TestUploadRequest
 {
-    [AllowNull]
-    public string Code { get; set; }
+    public string Code { get; set; } = default!;
 
-    [AllowNull]
-    public string Tag { get; set; }
+    public string Tag { get; set; } = default!;
 
     public IFormFile? File1 { get; set; }
 

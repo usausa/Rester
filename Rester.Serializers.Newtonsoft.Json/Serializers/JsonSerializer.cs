@@ -1,9 +1,5 @@
 namespace Rester.Serializers;
 
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Newtonsoft.Json;
 
 public sealed class JsonSerializer : ISerializer

@@ -1,7 +1,5 @@
 namespace Rester;
 
-using System.IO;
-
 public class MultipartUploadEntry
 {
     public Stream Stream { get; }

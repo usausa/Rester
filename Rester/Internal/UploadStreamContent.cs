@@ -1,12 +1,8 @@
 namespace Rester.Internal;
 
-using System;
-using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
 internal sealed class UploadStreamContent : HttpContent
 {

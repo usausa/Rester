@@ -1,6 +1,5 @@
 namespace Rester;
 
-using System;
 using System.Net;
 
 public interface IRestResponse

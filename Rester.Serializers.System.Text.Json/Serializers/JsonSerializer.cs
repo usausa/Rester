@@ -1,9 +1,5 @@
 namespace Rester.Serializers;
 
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
 public sealed class JsonSerializer : ISerializer
 {
     public static JsonSerializer Default { get; } = new(new JsonSerializerConfig());

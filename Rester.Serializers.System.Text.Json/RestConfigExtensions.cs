@@ -1,7 +1,5 @@
 namespace Rester;
 
-using System;
-
 using Rester.Serializers;
 
 public static class RestConfigExtensions

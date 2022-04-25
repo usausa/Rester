@@ -1,10 +1,6 @@
 namespace Rester;
 
-using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
 public static partial class HttpClientExtensions
 {

@@ -1,11 +1,8 @@
 namespace Example.Server.Models;
 
-using System.Diagnostics.CodeAnalysis;
-
 public class TestListRequest
 {
-    [AllowNull]
-    public string Name { get; set; }
+    public string Name { get; set; } = default!;
 
     public int? Count { get; set; }
 }

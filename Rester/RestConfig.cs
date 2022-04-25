@@ -1,16 +1,12 @@
 namespace Rester;
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-
 using Rester.Serializers;
 
 public class RestConfig
 {
     public static RestConfig Default { get; } = new();
 
-    [AllowNull]
-    public ISerializer Serializer { get; set; }
+    public ISerializer Serializer { get; set; } = default!;
 
     public int TransferBufferSize { get; set; } = 16 * 1024;
 
