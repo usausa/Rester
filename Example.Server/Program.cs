@@ -2,7 +2,7 @@ using Example.Server.Infrastructure;
 
 using Microsoft.AspNetCore.ResponseCompression;
 
-#pragma warning disable CA1812
+#pragma warning disable CA1852
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
