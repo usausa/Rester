@@ -11,4 +11,6 @@ public class RestConfig
     public int TransferBufferSize { get; set; } = 16 * 1024;
 
     public Func<ILengthResolveContext, long?>? LengthResolver { get; set; }
+
+    public string DefaultUploadContentType { get; set; } = "application/octet-stream";
 }

@@ -1,6 +1,7 @@
 namespace Rester;
 
 using System.Net.Http;
+using System.Net.Http.Headers;
 
 using Rester.Internal;
 
@@ -11,11 +12,12 @@ public static partial class HttpClientExtensions
         string path,
         string filename,
         IDictionary<string, object>? headers = null,
+        string? contentType = null,
         CompressOption compress = CompressOption.None,
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
     {
-        return UploadAsync(client, RestConfig.Default, path, filename, headers, compress, progress, cancel);
+        return UploadAsync(client, RestConfig.Default, path, filename, headers, contentType, compress, progress, cancel);
     }
 
     public static async ValueTask<IRestResponse> UploadAsync(
@@ -24,6 +26,7 @@ public static partial class HttpClientExtensions
         string path,
         string filename,
         IDictionary<string, object>? headers = null,
+        string? contentType = null,
         CompressOption compress = CompressOption.None,
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
@@ -32,7 +35,7 @@ public static partial class HttpClientExtensions
 #pragma warning disable CA2007
         await using var stream = fi.OpenRead();
 #pragma warning restore CA2007
-        return await UploadAsync(client, config, path, stream, headers, compress, progress, cancel).ConfigureAwait(false);
+        return await UploadAsync(client, config, path, stream, headers, contentType, compress, progress, cancel).ConfigureAwait(false);
     }
 
     public static ValueTask<IRestResponse> UploadAsync(
@@ -40,11 +43,12 @@ public static partial class HttpClientExtensions
         string path,
         Stream stream,
         IDictionary<string, object>? headers = null,
+        string? contentType = null,
         CompressOption compress = CompressOption.None,
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
     {
-        return UploadAsync(client, RestConfig.Default, path, stream, headers, compress, progress, cancel);
+        return UploadAsync(client, RestConfig.Default, path, stream, headers, contentType, compress, progress, cancel);
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
@@ -54,6 +58,7 @@ public static partial class HttpClientExtensions
         string path,
         Stream stream,
         IDictionary<string, object>? headers = null,
+        string? contentType = null,
         CompressOption compress = CompressOption.None,
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
@@ -67,7 +72,9 @@ public static partial class HttpClientExtensions
 
             var progressProxy = progress is not null ? MakeProgress(stream, progress) : default;
 
-            request.Content = new UploadStreamContent(stream, config.TransferBufferSize, compress, progressProxy, cancel);
+            var content = new UploadStreamContent(stream, config.TransferBufferSize, compress, progressProxy, cancel);
+            content.Headers.ContentType = new MediaTypeHeaderValue(contentType ?? config.DefaultUploadContentType);
+            request.Content = content;
 
             response = await client.SendAsync(request, cancel).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
