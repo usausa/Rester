@@ -1,3 +1,6 @@
+using System.IO.Compression;
+using System.Net.Mime;
+
 using Example.Server.Infrastructure;
 
 using Microsoft.AspNetCore.ResponseCompression;
@@ -17,11 +20,30 @@ builder.Services
         options.JsonSerializerOptions.Converters.Add(new DateTimeOffsetConverter());
     });
 
+// [Request]
+builder.Services.AddRequestDecompression(_ =>
+{
+    // Providers
+});
+
+// [Response]
 builder.Services.AddResponseCompression(options =>
 {
-    options.Providers.Add<GzipCompressionProvider>();
-    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/json" });
+    // Default false (for CRIME and BREACH attacks)
     options.EnableForHttps = true;
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = new[]
+    {
+        MediaTypeNames.Application.Json
+    };
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -41,9 +63,11 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseResponseCompression();
+// [Request]
+app.UseRequestDecompression();
 
-app.UseRequestDecompress();
+// [Response]
+app.UseResponseCompression();
 
 app.MapControllers();
 
