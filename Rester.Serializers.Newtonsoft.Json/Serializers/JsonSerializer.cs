@@ -17,13 +17,12 @@ public sealed class JsonSerializer : ISerializer
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Ignore")]
-    public ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel)
+    public async ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel)
     {
         var sw = new StreamWriter(stream);
         var jtw = new JsonTextWriter(sw);
         serializer.Serialize(jtw, obj);
-        jtw.Flush();
-        return default;
+        await jtw.FlushAsync(cancel).ConfigureAwait(false);
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Ignore")]
