@@ -48,7 +48,9 @@ public static partial class HttpClientExtensions
             }
 
             stream.Seek(0, SeekOrigin.Begin);
+#pragma warning disable CA2000
             var content = (HttpContent)new StreamContent(stream);
+#pragma warning restore CA2000
             content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
             if (compress != CompressOption.None)
             {
@@ -107,7 +109,9 @@ public static partial class HttpClientExtensions
             }
 
             stream.Seek(0, SeekOrigin.Begin);
+#pragma warning disable CA2000
             var content = (HttpContent)new StreamContent(stream);
+#pragma warning restore CA2000
             content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
             if (compress != CompressOption.None)
             {
