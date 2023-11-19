@@ -31,7 +31,7 @@ public static partial class HttpClientExtensions
                     request.Headers.Add(header.Key, ies);
                     break;
                 case IEnumerable<object> ie:
-                    request.Headers.Add(header.Key, ie.Select(x => x.ToString()));
+                    request.Headers.Add(header.Key, ie.Select(static x => x.ToString()));
                     break;
                 default:
                     request.Headers.Add(header.Key, header.Value.ToString());

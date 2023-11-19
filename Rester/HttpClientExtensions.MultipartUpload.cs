@@ -83,7 +83,7 @@ public static partial class HttpClientExtensions
         return MultipartUploadAsync(client, RestConfig.Default, path, entries, parameters, headers, progress, cancel);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
     public static async ValueTask<IRestResponse> MultipartUploadAsync(
         this HttpClient client,
         RestConfig config,

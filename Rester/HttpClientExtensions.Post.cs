@@ -18,7 +18,7 @@ public static partial class HttpClientExtensions
         return PostAsync(client, RestConfig.Default, path, parameter, headers, compress, cancel);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
     public static async ValueTask<IRestResponse> PostAsync(
         this HttpClient client,
         RestConfig config,
@@ -79,7 +79,7 @@ public static partial class HttpClientExtensions
         return PostAsync<T>(client, RestConfig.Default, path, parameter, headers, compress, cancel);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
     public static async ValueTask<IRestResponse<T>> PostAsync<T>(
         this HttpClient client,
         RestConfig config,

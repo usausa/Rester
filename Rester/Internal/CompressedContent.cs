@@ -39,8 +39,8 @@ internal sealed class CompressedContent : HttpContent
         return false;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Factory")]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2008:DoNotCreateTasksWithoutPassingATaskScheduler", Justification = "Ignore")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Factory")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2008:DoNotCreateTasksWithoutPassingATaskScheduler", Justification = "Ignore")]
     protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
     {
         var compressedStream = compress == CompressOption.Gzip

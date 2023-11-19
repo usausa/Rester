@@ -61,7 +61,7 @@ public static partial class HttpClientExtensions
         return DownloadAsync(client, RestConfig.Default, path, stream, headers, progress, cancel);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
     public static async ValueTask<IRestResponse> DownloadAsync(
         this HttpClient client,
         RestConfig config,

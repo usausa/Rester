@@ -190,7 +190,7 @@ public sealed class TestClient : IDisposable
         Console.WriteLine("==== Upload ====");
 
 #pragma warning disable CA2007
-        await using var stream = new MemoryStream(Enumerable.Range(0, 1 * 1000 * 1000).Select(x => (byte)(x % 256)).ToArray());
+        await using var stream = new MemoryStream(Enumerable.Range(0, 1 * 1000 * 1000).Select(static x => (byte)(x % 256)).ToArray());
 #pragma warning restore CA2007
         var progress = -1d;
         var response = await client.UploadAsync(
@@ -215,7 +215,7 @@ public sealed class TestClient : IDisposable
         Console.WriteLine("==== Upload:Compress ====");
 
 #pragma warning disable CA2007
-        await using var stream = new MemoryStream(Enumerable.Range(0, 1 * 1000 * 1000).Select(x => (byte)(x % 256)).ToArray());
+        await using var stream = new MemoryStream(Enumerable.Range(0, 1 * 1000 * 1000).Select(static x => (byte)(x % 256)).ToArray());
 #pragma warning restore CA2007
         var progress = -1d;
         var response = await client.UploadAsync(

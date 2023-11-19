@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
+#pragma warning disable CA1848
+#pragma warning disable ASP0023
 public class TestController : BaseApiController
 {
     private readonly ILogger<TestController> log;
@@ -58,7 +60,7 @@ public class TestController : BaseApiController
 
         if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
         {
-            HttpContext.Response.Headers.Add("X-OriginalLength", $"{size}");
+            HttpContext.Response.Headers.Append("X-OriginalLength", $"{size}");
 
             return File(new byte[size], "application/json");
         }
@@ -109,3 +111,5 @@ public class TestController : BaseApiController
         return Ok();
     }
 }
+#pragma warning restore ASP0023
+#pragma warning restore CA1848

@@ -7,8 +7,9 @@ public class TestListResponseEntry
     public string Name { get; set; } = default!;
 }
 
+#pragma warning disable CA1819
 public class TestListResponse
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Performance")]
     public TestListResponseEntry[] Entries { get; set; } = default!;
 }
+#pragma warning restore CA1819
