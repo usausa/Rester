@@ -84,15 +84,9 @@ public static partial class HttpClientExtensions
                 return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
             }
 
-#if NET5_0_OR_GREATER
 #pragma warning disable CA2007
             await using (var input = await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false))
 #pragma warning restore CA2007
-#else
-#pragma warning disable CA2007
-            await using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
-#pragma warning restore CA2007
-#endif
             {
                 if (progress is not null)
                 {
