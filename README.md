@@ -56,7 +56,6 @@ var response = await client.MultipartUploadAsync(
 | Id                                 | Description         |
 |------------------------------------|---------------------|
 | Rester                             | Rester core         |
-| Rester.Serializers.Newtonsoft.Json | Json.NET serializer |
 
 ## Functions
 

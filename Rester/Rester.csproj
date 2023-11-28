@@ -9,7 +9,6 @@
     <PackageId>Rester</PackageId>
     <Title>Rester.NET</Title>
     <Description>HttpClient extensions</Description>
-    <Summary>HttpClient extensions</Summary>
     <PackageTags>rest httpclient</PackageTags>
   </PropertyGroup>
 
