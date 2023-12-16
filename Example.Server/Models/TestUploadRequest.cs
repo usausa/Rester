@@ -2,7 +2,7 @@ namespace Example.Server.Models;
 
 using Microsoft.AspNetCore.Http;
 
-public class TestUploadRequest
+public sealed class TestUploadRequest
 {
     public string Code { get; set; } = default!;
 

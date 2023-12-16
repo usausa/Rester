@@ -1,6 +1,6 @@
 namespace Example.Client;
 
-public class TestListResponseEntry
+public sealed class TestListResponseEntry
 {
     public int No { get; set; }
 
@@ -8,7 +8,7 @@ public class TestListResponseEntry
 }
 
 #pragma warning disable CA1819
-public class TestListResponse
+public sealed class TestListResponse
 {
     public TestListResponseEntry[] Entries { get; set; } = default!;
 }

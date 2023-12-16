@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 #pragma warning disable CA1848
 #pragma warning disable ASP0023
-public class TestController : BaseApiController
+public sealed class TestController : BaseApiController
 {
     private readonly ILogger<TestController> log;
 

@@ -2,7 +2,7 @@ namespace Rester;
 
 using Rester.Serializers;
 
-public class RestConfig
+public sealed class RestConfig
 {
     public static RestConfig Default { get; } = new();
 

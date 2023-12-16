@@ -1,6 +1,6 @@
 namespace Example.Client;
 
-public class TestPostRequest
+public sealed class TestPostRequest
 {
     public int Value { get; set; }
 

@@ -1,6 +1,6 @@
 namespace Example.Server.Models;
 
-public class TestSingleResponse
+public sealed class TestSingleResponse
 {
     public string Code { get; set; } = default!;
 

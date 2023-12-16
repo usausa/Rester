@@ -13,7 +13,6 @@ public static partial class HttpClientExtensions
         return GetAsync<T>(client, RestConfig.Default, path, headers, cancel);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
     public static async ValueTask<IRestResponse<T>> GetAsync<T>(
         this HttpClient client,
         RestConfig config,
@@ -22,6 +21,7 @@ public static partial class HttpClientExtensions
         CancellationToken cancel = default)
     {
         HttpResponseMessage? response = null;
+#pragma warning disable CA1031
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, path);
@@ -46,5 +46,6 @@ public static partial class HttpClientExtensions
         {
             return MakeErrorResponse<T>(e, response?.StatusCode ?? 0);
         }
+#pragma warning restore CA1031
     }
 }

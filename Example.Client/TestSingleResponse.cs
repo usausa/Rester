@@ -2,7 +2,7 @@ namespace Example.Client;
 
 using System;
 
-public class TestSingleResponse
+public sealed class TestSingleResponse
 {
     public string Code { get; set; } = default!;
 

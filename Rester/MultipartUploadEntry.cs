@@ -1,6 +1,6 @@
 namespace Rester;
 
-public class MultipartUploadEntry
+public sealed class MultipartUploadEntry
 {
     public Stream Stream { get; }
 

@@ -51,7 +51,6 @@ public static partial class HttpClientExtensions
         return UploadAsync(client, RestConfig.Default, path, stream, headers, contentType, compress, progress, cancel);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Ignore")]
     public static async ValueTask<IRestResponse> UploadAsync(
         this HttpClient client,
         RestConfig config,
@@ -64,6 +63,7 @@ public static partial class HttpClientExtensions
         CancellationToken cancel = default)
     {
         HttpResponseMessage? response = null;
+#pragma warning disable CA1031
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, path);
@@ -88,6 +88,7 @@ public static partial class HttpClientExtensions
         {
             return MakeErrorResponse<object>(e, response?.StatusCode ?? 0);
         }
+#pragma warning restore CA1031
     }
 
     private static Action<long>? MakeProgress(Stream stream, Action<long, long> progress)

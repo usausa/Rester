@@ -64,7 +64,7 @@ var response = await client.MultipartUploadAsync(
 Rester config.
 
 ```csharp
-public class RestConfig
+public sealed class RestConfig
 {
     // Serializer for object
     public ISerializer Serializer { get; set; }
@@ -91,7 +91,7 @@ public static RestConfig UseJsonSerializer(this RestConfig config, Action<JsonSe
 Json.NET config default.
 
 ```csharp
-public class JsonSerializerConfig
+public sealed class JsonSerializerConfig
 {
     public string ContentType { get; set; } = "application/json";
 
