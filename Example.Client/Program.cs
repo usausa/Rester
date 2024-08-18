@@ -253,11 +253,10 @@ public sealed class TestClient : IDisposable
         var progress = -1d;
         var response = await client.MultipartUploadAsync(
             "test/upload3",
-            new List<MultipartUploadEntry>
-            {
+            [
                 new(new MemoryStream(new byte[128 * 1000]), "file1", "test.txt"),
                 new(new MemoryStream(new byte[128 * 1000]), "file2", "test.csv", CompressOption.Gzip)
-            },
+            ],
             new Dictionary<string, object>
             {
                 { "Code", 123 },
