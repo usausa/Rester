@@ -11,37 +11,34 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services
-    .AddControllers(options =>
+    .AddControllers(static options =>
     {
         options.Conventions.Add(new LowercaseControllerModelConvention());
     })
-    .AddJsonOptions(options =>
+    .AddJsonOptions(static options =>
     {
         options.JsonSerializerOptions.Converters.Add(new DateTimeOffsetConverter());
     });
 
 // [Request]
-builder.Services.AddRequestDecompression(_ =>
+builder.Services.AddRequestDecompression(static _ =>
 {
     // Providers
 });
 
 // [Response]
-builder.Services.AddResponseCompression(options =>
+builder.Services.AddResponseCompression(static options =>
 {
     // Default false (for CRIME and BREACH attacks)
     options.EnableForHttps = true;
     options.Providers.Add<GzipCompressionProvider>();
-    options.MimeTypes = new[]
-    {
-        MediaTypeNames.Application.Json
-    };
+    options.MimeTypes = [MediaTypeNames.Application.Json];
 });
-builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+builder.Services.Configure<BrotliCompressionProviderOptions>(static options =>
 {
     options.Level = CompressionLevel.Fastest;
 });
-builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+builder.Services.Configure<GzipCompressionProviderOptions>(static options =>
 {
     options.Level = CompressionLevel.Fastest;
 });

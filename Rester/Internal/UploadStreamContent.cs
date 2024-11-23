@@ -6,7 +6,7 @@ using System.Net.Http;
 
 internal sealed class UploadStreamContent : HttpContent
 {
-    public static Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> Gzip => async (source, destination, task) =>
+    public static Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> Gzip => static async (source, destination, task) =>
     {
 #pragma warning disable CA2007
         await using var compressedStream = (Stream)new GZipStream(destination, CompressionMode.Compress, true);
@@ -14,7 +14,7 @@ internal sealed class UploadStreamContent : HttpContent
         await task(source, compressedStream).ConfigureAwait(false);
     };
 
-    public static Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> Deflate => async (source, destination, task) =>
+    public static Func<Stream, Stream, Func<Stream, Stream, ValueTask>, ValueTask> Deflate => static async (source, destination, task) =>
     {
 #pragma warning disable CA2007
         await using var compressedStream = (Stream)new DeflateStream(destination, CompressionMode.Compress, true);
