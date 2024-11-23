@@ -1,5 +1,7 @@
 # Rester - HttpClient extensions for rest api
 
+[![NuGet](https://img.shields.io/nuget/v/Rester.svg)](https://www.nuget.org/packages/Rester/)
+
 ## What is this?
 
 * HttpClient extensions with serialization function
