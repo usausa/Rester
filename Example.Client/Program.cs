@@ -9,11 +9,11 @@ public static class Program
 {
     public static async Task Main()
     {
-        RestConfig.Default.UseJsonSerializer(options =>
+        RestConfig.Default.UseJsonSerializer(static options =>
         {
             options.Converters.Add(new DateTimeOffsetConverter());
         });
-        RestConfig.Default.LengthResolver = ctx =>
+        RestConfig.Default.LengthResolver = static ctx =>
             Int64.TryParse(ctx.GetValues("X-OriginalLength").FirstOrDefault(), out var length)
                 ? length
                 : null;
