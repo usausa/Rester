@@ -9,7 +9,20 @@ public sealed class DateTimeOffsetConverter : JsonConverter<DateTimeOffset>
 {
     public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        return new(DateTime.Parse(reader.GetString()!, DateTimeFormatInfo.InvariantInfo));
+        var value = reader.GetString();
+        if (String.IsNullOrEmpty(value))
+        {
+            return default;
+        }
+
+        try
+        {
+            return DateTime.Parse(value, CultureInfo.InvariantCulture);
+        }
+        catch
+        {
+            throw new FormatException();
+        }
     }
 
     public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
