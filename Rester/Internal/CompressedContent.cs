@@ -39,16 +39,13 @@ internal sealed class CompressedContent : HttpContent
         return false;
     }
 
-    protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+    protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)
     {
-#pragma warning disable CA2000
-        var compressedStream = compress == CompressOption.Gzip
+#pragma warning disable CA2007
+        await using var compressedStream = compress == CompressOption.Gzip
             ? (Stream)new GZipStream(stream, CompressionMode.Compress, true)
             : new DeflateStream(stream, CompressionMode.Compress, true);
-#pragma warning restore CA2000
-#pragma warning disable CA2008
-        return content.CopyToAsync(compressedStream, context)
-            .ContinueWith(_ => compressedStream.Dispose());
-#pragma warning restore CA2008
+#pragma warning restore CA2007
+        await content.CopyToAsync(compressedStream, context).ConfigureAwait(false);
     }
 }
