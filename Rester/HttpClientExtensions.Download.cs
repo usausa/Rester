@@ -14,7 +14,7 @@ public static partial class HttpClientExtensions
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
     {
-        return DownloadAsync(client, RestConfig.Default, path, filename, headers, progress, cancel);
+        return client.DownloadAsync(RestConfig.Default, path, filename, headers, progress, cancel);
     }
 
     public static async ValueTask<IRestResponse> DownloadAsync(
@@ -33,7 +33,7 @@ public static partial class HttpClientExtensions
             await using var stream = new FileStream(filename, FileMode.Create);
 #pragma warning restore CA2007
 
-            var result = await DownloadAsync(client, config, path, stream, headers, progress, cancel).ConfigureAwait(false);
+            var result = await client.DownloadAsync(config, path, stream, headers, progress, cancel).ConfigureAwait(false);
             if (result.IsSuccess())
             {
                 delete = false;
@@ -58,7 +58,7 @@ public static partial class HttpClientExtensions
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
     {
-        return DownloadAsync(client, RestConfig.Default, path, stream, headers, progress, cancel);
+        return client.DownloadAsync(RestConfig.Default, path, stream, headers, progress, cancel);
     }
 
     public static async ValueTask<IRestResponse> DownloadAsync(

@@ -15,7 +15,7 @@ public static partial class HttpClientExtensions
         CompressOption compress = CompressOption.None,
         CancellationToken cancel = default)
     {
-        return PostAsync(client, RestConfig.Default, path, parameter, headers, compress, cancel);
+        return client.PostAsync(RestConfig.Default, path, parameter, headers, compress, cancel);
     }
 
     public static async ValueTask<IRestResponse> PostAsync(
@@ -77,7 +77,7 @@ public static partial class HttpClientExtensions
         CompressOption compress = CompressOption.None,
         CancellationToken cancel = default)
     {
-        return PostAsync<T>(client, RestConfig.Default, path, parameter, headers, compress, cancel);
+        return client.PostAsync<T>(RestConfig.Default, path, parameter, headers, compress, cancel);
     }
 
     public static async ValueTask<IRestResponse<T>> PostAsync<T>(

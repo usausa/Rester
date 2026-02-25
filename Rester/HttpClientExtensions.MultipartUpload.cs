@@ -19,7 +19,7 @@ public static partial class HttpClientExtensions
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
     {
-        return MultipartUploadAsync(client, RestConfig.Default, path, stream, name, filename, parameters, headers, compress, progress, cancel);
+        return client.MultipartUploadAsync(RestConfig.Default, path, stream, name, filename, parameters, headers, compress, progress, cancel);
     }
 
     public static ValueTask<IRestResponse> MultipartUploadAsync(
@@ -35,7 +35,7 @@ public static partial class HttpClientExtensions
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
     {
-        return MultipartUploadAsync(client, config, path, [new MultipartUploadEntry(stream, name, filename, compress)], parameters, headers, progress, cancel);
+        return client.MultipartUploadAsync(config, path, [new MultipartUploadEntry(stream, name, filename, compress)], parameters, headers, progress, cancel);
     }
 
     public static ValueTask<IRestResponse> MultipartUploadAsync(
@@ -49,7 +49,7 @@ public static partial class HttpClientExtensions
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
     {
-        return MultipartUploadAsync(client, RestConfig.Default, path, name, filename, parameters, headers, compress, progress, cancel);
+        return client.MultipartUploadAsync(RestConfig.Default, path, name, filename, parameters, headers, compress, progress, cancel);
     }
 
     public static async ValueTask<IRestResponse> MultipartUploadAsync(
@@ -68,7 +68,7 @@ public static partial class HttpClientExtensions
 #pragma warning disable CA2007
         await using var stream = fi.OpenRead();
 #pragma warning restore CA2007
-        return await MultipartUploadAsync(client, config, path, [new MultipartUploadEntry(stream, name, fi.Name, compress)], parameters, headers, progress, cancel).ConfigureAwait(false);
+        return await client.MultipartUploadAsync(config, path, [new MultipartUploadEntry(stream, name, fi.Name, compress)], parameters, headers, progress, cancel).ConfigureAwait(false);
     }
 
     public static ValueTask<IRestResponse> MultipartUploadAsync(
@@ -80,7 +80,7 @@ public static partial class HttpClientExtensions
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
     {
-        return MultipartUploadAsync(client, RestConfig.Default, path, entries, parameters, headers, progress, cancel);
+        return client.MultipartUploadAsync(RestConfig.Default, path, entries, parameters, headers, progress, cancel);
     }
 
     public static async ValueTask<IRestResponse> MultipartUploadAsync(

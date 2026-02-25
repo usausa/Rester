@@ -10,7 +10,7 @@ public static partial class HttpClientExtensions
         IDictionary<string, object>? headers = null,
         CancellationToken cancel = default)
     {
-        return GetAsync<T>(client, RestConfig.Default, path, headers, cancel);
+        return client.GetAsync<T>(RestConfig.Default, path, headers, cancel);
     }
 
     public static async ValueTask<IRestResponse<T>> GetAsync<T>(

@@ -17,7 +17,7 @@ public static partial class HttpClientExtensions
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
     {
-        return UploadAsync(client, RestConfig.Default, path, filename, headers, contentType, compress, progress, cancel);
+        return client.UploadAsync(RestConfig.Default, path, filename, headers, contentType, compress, progress, cancel);
     }
 
     public static async ValueTask<IRestResponse> UploadAsync(
@@ -35,7 +35,7 @@ public static partial class HttpClientExtensions
 #pragma warning disable CA2007
         await using var stream = fi.OpenRead();
 #pragma warning restore CA2007
-        return await UploadAsync(client, config, path, stream, headers, contentType, compress, progress, cancel).ConfigureAwait(false);
+        return await client.UploadAsync(config, path, stream, headers, contentType, compress, progress, cancel).ConfigureAwait(false);
     }
 
     public static ValueTask<IRestResponse> UploadAsync(
@@ -48,7 +48,7 @@ public static partial class HttpClientExtensions
         Action<long, long>? progress = null,
         CancellationToken cancel = default)
     {
-        return UploadAsync(client, RestConfig.Default, path, stream, headers, contentType, compress, progress, cancel);
+        return client.UploadAsync(RestConfig.Default, path, stream, headers, contentType, compress, progress, cancel);
     }
 
     public static async ValueTask<IRestResponse> UploadAsync(
