@@ -1,5 +1,6 @@
 namespace Rester.Internal;
 
+using System.Buffers;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
@@ -42,7 +43,7 @@ internal sealed class UploadStreamContent : HttpContent
 
         if (compress != CompressOption.None)
         {
-            Headers.ContentEncoding.Add(compress.ToString().ToLowerInvariant());
+            Headers.ContentEncoding.Add(compress.ToContentEncoding());
         }
     }
 
@@ -107,14 +108,21 @@ internal sealed class UploadStreamContent : HttpContent
 
     private static async ValueTask CopyAsync(Stream source, Stream destination, int bufferSize, Action<long> progress, CancellationToken cancel)
     {
-        var buffer = new byte[bufferSize];
-        int read;
-        while ((read = await source.ReadAsync(buffer, cancel).ConfigureAwait(false)) > 0)
+        var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+        try
         {
-            await destination.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
-            progress(read);
-        }
+            int read;
+            while ((read = await source.ReadAsync(buffer.AsMemory(0, bufferSize), cancel).ConfigureAwait(false)) > 0)
+            {
+                await destination.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
+                progress(read);
+            }
 
-        await destination.FlushAsync(cancel).ConfigureAwait(false);
+            await destination.FlushAsync(cancel).ConfigureAwait(false);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 }

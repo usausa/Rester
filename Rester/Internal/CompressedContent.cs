@@ -20,7 +20,7 @@ internal sealed class CompressedContent : HttpContent
             Headers.TryAddWithoutValidation(header.Key, header.Value);
         }
 
-        Headers.ContentEncoding.Add(compress.ToString().ToLowerInvariant());
+        Headers.ContentEncoding.Add(compress.ToContentEncoding());
     }
 
     protected override void Dispose(bool disposing)

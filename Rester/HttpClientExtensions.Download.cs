@@ -1,5 +1,6 @@
 namespace Rester;
 
+using System.Buffers;
 using System.Net.Http;
 
 using Rester.Internal;
@@ -94,15 +95,22 @@ public static partial class HttpClientExtensions
                                     config.LengthResolver?.Invoke(new LengthResolveContext(response));
                     if (totalSize.HasValue)
                     {
-                        var buffer = new byte[config.TransferBufferSize];
-                        var totalProcessed = 0L;
-                        int read;
-                        while ((read = await input.ReadAsync(buffer, cancel).ConfigureAwait(false)) > 0)
+                        var buffer = ArrayPool<byte>.Shared.Rent(config.TransferBufferSize);
+                        try
                         {
-                            await stream.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
+                            var totalProcessed = 0L;
+                            int read;
+                            while ((read = await input.ReadAsync(buffer.AsMemory(0, config.TransferBufferSize), cancel).ConfigureAwait(false)) > 0)
+                            {
+                                await stream.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
 
-                            totalProcessed += read;
-                            progress(totalProcessed, totalSize.Value);
+                                totalProcessed += read;
+                                progress(totalProcessed, totalSize.Value);
+                            }
+                        }
+                        finally
+                        {
+                            ArrayPool<byte>.Shared.Return(buffer);
                         }
                     }
                     else
