@@ -152,7 +152,6 @@ public static partial class HttpClientExtensions
 #pragma warning restore CA1031
     }
 
-    /// <summary>AOT対応: JsonTypeInfoを使用してシリアライズ・デシリアライズします。</summary>
     public static ValueTask<IRestResponse> PostAsync<TRequest>(
         this HttpClient client,
         string path,
@@ -165,7 +164,6 @@ public static partial class HttpClientExtensions
         return client.PostAsync(RestConfig.Default, path, parameter, requestTypeInfo, headers, compress, cancel);
     }
 
-    /// <summary>AOT対応: JsonTypeInfoを使用してシリアライズ・デシリアライズします。</summary>
     public static async ValueTask<IRestResponse> PostAsync<TRequest>(
         this HttpClient client,
         RestConfig config,

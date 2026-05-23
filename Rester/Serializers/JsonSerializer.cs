@@ -35,7 +35,7 @@ public sealed class JsonSerializer : ISerializer
     [RequiresDynamicCode("JSON serialization requires dynamic code.")]
     public async ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel)
     {
-        await System.Text.Json.JsonSerializer.SerializeAsync<T>(stream, obj, options, cancel).ConfigureAwait(false);
+        await System.Text.Json.JsonSerializer.SerializeAsync(stream, obj, options, cancel).ConfigureAwait(false);
     }
 
     public async ValueTask SerializeAsync<T>(Stream stream, T obj, JsonTypeInfo<T> typeInfo, CancellationToken cancel)
