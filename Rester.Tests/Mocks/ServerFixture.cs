@@ -1,4 +1,4 @@
-namespace Rester;
+namespace Rester.Mocks;
 
 using System.Net.Http;
 using System.Text.Json;
@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-
-using Xunit;
 
 public sealed class ServerFixture : IAsyncLifetime
 {
