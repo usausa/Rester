@@ -1,6 +1,0 @@
-<Solution>
-  <Folder Name="/Solution Items/">
-    <File Path="Example.Server.sln.DotSettings" />
-  </Folder>
-  <Project Path="Example.Server/Example.Server.csproj" />
-</Solution>

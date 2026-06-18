@@ -53,6 +53,18 @@ var response = await client.MultipartUploadAsync(
     });
 ```
 
+## RestResult classification
+
+| Value | Meaning |
+|-------|---------|
+| `Success` | HTTP 2xx and deserialization (if applicable) succeeded |
+| `Cancel` | The request was cancelled via `CancellationToken` |
+| `RequestError` | A network-level error occurred before a response was received (`HttpRequestException`) |
+| `HttpError` | A non-success HTTP status code was returned (4xx / 5xx) |
+| `SerializeError` | Deserialization of the response body failed (only on 2xx responses) |
+| `Unknown` | An unexpected exception that does not fit any other category |
+| `Timeout` | `HttpClient.Timeout` was exceeded (distinct from user-triggered cancellation) |
+
 ## NuGet
 
 | Id                                 | Description         |

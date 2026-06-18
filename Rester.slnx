@@ -1,4 +1,11 @@
 <Solution>
+  <Folder Name="/Example/">
+    <Project Path="Example.Client/Example.Client.csproj" />
+    <Project Path="Example.Server/Example.Server.csproj" />
+  </Folder>
+  <Folder Name="/Library/">
+    <Project Path="Rester/Rester.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".gitattributes" />
@@ -12,6 +19,7 @@
     <File Path="README.md" />
     <File Path="Rester.sln.DotSettings" />
   </Folder>
-  <Project Path="Rester/Rester.csproj" />
-  <Project Path="Example.Client/Example.Client.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="Rester.Tests/Rester.Tests.csproj" />
+  </Folder>
 </Solution>

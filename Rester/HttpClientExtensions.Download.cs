@@ -132,6 +132,10 @@ public static partial class HttpClientExtensions
         {
             return MakeErrorResponse<object>(e, response?.StatusCode ?? 0);
         }
+        finally
+        {
+            response?.Dispose();
+        }
 #pragma warning restore CA1031
     }
 }

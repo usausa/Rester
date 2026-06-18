@@ -36,12 +36,17 @@ public static partial class HttpClientExtensions
 
             response = await client.SendAsync(request, cancel).ConfigureAwait(false);
 
+            if (!response.IsSuccessStatusCode)
+            {
+                return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
+            }
+
             var isJson = response.Content.Headers.ContentType?.MediaType is not null &&
                          response.Content.Headers.ContentType.MediaType.Contains("json", StringComparison.OrdinalIgnoreCase);
             try
             {
                 var obj = isJson ? await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false) : default;
-                return new RestResponse<T>(response.IsSuccessStatusCode ? RestResult.Success : RestResult.HttpError, response.StatusCode, null, obj);
+                return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
             }
             catch (Exception e)
             {
@@ -51,6 +56,10 @@ public static partial class HttpClientExtensions
         catch (Exception e)
         {
             return MakeErrorResponse<T>(e, response?.StatusCode ?? 0);
+        }
+        finally
+        {
+            response?.Dispose();
         }
 #pragma warning restore CA1031
     }
@@ -83,12 +92,17 @@ public static partial class HttpClientExtensions
 
             response = await client.SendAsync(request, cancel).ConfigureAwait(false);
 
+            if (!response.IsSuccessStatusCode)
+            {
+                return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
+            }
+
             var isJson = response.Content.Headers.ContentType?.MediaType is not null &&
                          response.Content.Headers.ContentType.MediaType.Contains("json", StringComparison.OrdinalIgnoreCase);
             try
             {
                 var obj = isJson ? await config.Serializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), typeInfo, cancel).ConfigureAwait(false) : default;
-                return new RestResponse<T>(response.IsSuccessStatusCode ? RestResult.Success : RestResult.HttpError, response.StatusCode, null, obj);
+                return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
             }
             catch (Exception e)
             {
@@ -98,6 +112,10 @@ public static partial class HttpClientExtensions
         catch (Exception e)
         {
             return MakeErrorResponse<T>(e, response?.StatusCode ?? 0);
+        }
+        finally
+        {
+            response?.Dispose();
         }
 #pragma warning restore CA1031
     }
