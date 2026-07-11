@@ -34,7 +34,7 @@ public static partial class HttpClientExtensions
 
             ProcessHeaders(request, headers);
 
-            response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+            response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -48,14 +48,14 @@ public static partial class HttpClientExtensions
                 var obj = isJson ? await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false) : default;
                 return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
             }
-            catch (Exception e)
+            catch (Exception e) when ((e is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
                 return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
             }
         }
         catch (Exception e)
         {
-            return MakeErrorResponse<T>(e, response?.StatusCode ?? 0);
+            return MakeErrorResponse<T>(e, response?.StatusCode ?? 0, cancel);
         }
         finally
         {
@@ -90,7 +90,7 @@ public static partial class HttpClientExtensions
 
             ProcessHeaders(request, headers);
 
-            response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+            response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -104,14 +104,14 @@ public static partial class HttpClientExtensions
                 var obj = isJson ? await config.Serializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), typeInfo, cancel).ConfigureAwait(false) : default;
                 return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
             }
-            catch (Exception e)
+            catch (Exception e) when ((e is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
                 return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
             }
         }
         catch (Exception e)
         {
-            return MakeErrorResponse<T>(e, response?.StatusCode ?? 0);
+            return MakeErrorResponse<T>(e, response?.StatusCode ?? 0, cancel);
         }
         finally
         {

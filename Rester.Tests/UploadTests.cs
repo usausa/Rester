@@ -53,6 +53,58 @@ public sealed class UploadTests
     }
 
     [Fact]
+    public async Task UploadStreamCallerStreamNotDisposed()
+    {
+        // Arrange
+        var client = fixture.CreateClient();
+        var config = new RestConfig().UseJsonSerializer();
+#pragma warning disable CA2007
+        await using var stream = new MemoryStream(new byte[256]);
+#pragma warning restore CA2007
+
+        // Act
+        var response = await client.UploadAsync(
+            config,
+            "/upload/test.dat",
+            stream,
+            cancel: TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        // Assert
+        Assert.Equal(RestResult.Success, response.RestResult);
+        Assert.True(stream.CanRead);
+    }
+
+    [Fact]
+    public async Task MultipartUploadCallerStreamsNotDisposed()
+    {
+        // Arrange
+        var client = fixture.CreateClient();
+        var config = new RestConfig().UseJsonSerializer();
+#pragma warning disable CA2007
+        await using var s1 = new MemoryStream(new byte[256]);
+        await using var s2 = new MemoryStream(new byte[512]);
+#pragma warning restore CA2007
+
+        var entries = new List<MultipartUploadEntry>
+        {
+            new(s1, "file1", "test1.dat"),
+            new(s2, "file2", "test2.dat")
+        };
+
+        // Act
+        var response = await client.MultipartUploadAsync(
+            config,
+            "/upload-multipart",
+            entries,
+            cancel: TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        // Assert
+        Assert.Equal(RestResult.Success, response.RestResult);
+        Assert.True(s1.CanRead);
+        Assert.True(s2.CanRead);
+    }
+
+    [Fact]
     public async Task MultipartUploadTwoFilesFieldsDelivered()
     {
         // Arrange

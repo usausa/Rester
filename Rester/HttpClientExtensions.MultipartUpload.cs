@@ -100,8 +100,6 @@ public static partial class HttpClientExtensions
             using var request = new HttpRequestMessage(HttpMethod.Post, path);
             using var multipart = new MultipartFormDataContent();
 
-            ProcessHeaders(request, headers);
-
             if (parameters is not null)
             {
                 foreach (var parameter in parameters)
@@ -117,13 +115,15 @@ public static partial class HttpClientExtensions
             foreach (var upload in entries)
             {
 #pragma warning disable CA2000
-                var content = new UploadStreamContent(upload.Stream, config.TransferBufferSize, upload.Compress, progressProxy, cancel);
+                var content = new UploadStreamContent(upload.Stream, disposeSource: false, config.TransferBufferSize, upload.Compress, progressProxy, cancel);
                 content.Headers.ContentType = new MediaTypeHeaderValue(upload.ContentType ?? config.DefaultUploadContentType);
                 multipart.Add(content, upload.Name, upload.FileName);
 #pragma warning restore CA2000
             }
 
             request.Content = multipart;
+
+            ProcessHeaders(request, headers);
 
             response = await client.SendAsync(request, cancel).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
@@ -135,7 +135,7 @@ public static partial class HttpClientExtensions
         }
         catch (Exception e)
         {
-            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0);
+            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0, cancel);
         }
         finally
         {

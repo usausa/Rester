@@ -112,6 +112,8 @@ public static partial class HttpClientExtensions
                         {
                             ArrayPool<byte>.Shared.Return(buffer);
                         }
+
+                        await stream.FlushAsync(cancel).ConfigureAwait(false);
                     }
                     else
                     {
@@ -130,7 +132,7 @@ public static partial class HttpClientExtensions
         }
         catch (Exception e)
         {
-            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0);
+            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0, cancel);
         }
         finally
         {

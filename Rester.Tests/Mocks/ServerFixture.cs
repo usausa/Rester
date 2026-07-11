@@ -51,6 +51,24 @@ public sealed class ServerFixture : IAsyncLifetime
             return Results.Json(new { error = "bad value" }, statusCode: 400);
         });
 
+        app.MapGet("/large-list", (int? count) =>
+        {
+            var n = Math.Min(count ?? 5000, 10000);
+            var entries = Enumerable.Range(1, n)
+                .Select(i => new { no = i, name = $"{new string('x', 100)}-{i}" })
+                .ToArray();
+            return Results.Json(new { entries });
+        });
+
+        app.MapGet("/slow-json", async ctx =>
+        {
+            ctx.Response.ContentType = "application/json";
+            await ctx.Response.WriteAsync("{\"entries\":[").ConfigureAwait(true);
+            await ctx.Response.Body.FlushAsync().ConfigureAwait(true);
+            await Task.Delay(5000, ctx.RequestAborted).ConfigureAwait(true);
+            await ctx.Response.WriteAsync("]}").ConfigureAwait(true);
+        });
+
         app.MapGet("/text", () => Results.Text("hello"));
 
         app.MapGet("/broken-json", () => Results.Content("{invalid", "application/json"));

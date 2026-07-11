@@ -48,4 +48,14 @@ internal sealed class CompressedContent : HttpContent
 #pragma warning restore CA2007
         await content.CopyToAsync(compressedStream, context).ConfigureAwait(false);
     }
+
+    protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+    {
+#pragma warning disable CA2007
+        await using var compressedStream = compress == CompressOption.Gzip
+            ? (Stream)new GZipStream(stream, CompressionMode.Compress, true)
+            : new DeflateStream(stream, CompressionMode.Compress, true);
+#pragma warning restore CA2007
+        await content.CopyToAsync(compressedStream, context, cancellationToken).ConfigureAwait(false);
+    }
 }

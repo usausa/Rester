@@ -1,5 +1,7 @@
 namespace Rester;
 
+using System.Net;
+
 [Collection("Server")]
 public sealed class DownloadTests
 {
@@ -88,6 +90,36 @@ public sealed class DownloadTests
         // Assert
         Assert.Equal(RestResult.Success, response.RestResult);
         Assert.Equal(64 * 1024, ms.Length);
+    }
+
+    [Fact]
+    public async Task DownloadWithProgressKnownSizeFlushed()
+    {
+        // Arrange
+        var data = new byte[256];
+        using var handler = new TrackingHandler(_ => new TrackingResponse(HttpStatusCode.OK, null, "application/octet-stream")
+        {
+            Content = new ByteArrayContent(data)
+        });
+        using var client = new HttpClient(handler, disposeHandler: false);
+        client.BaseAddress = new Uri("http://localhost/");
+        var config = new RestConfig().UseJsonSerializer();
+#pragma warning disable CA2007
+        await using var stream = new FlushObservableStream();
+#pragma warning restore CA2007
+
+        // Act
+        var response = await client.DownloadAsync(
+            config,
+            "/download",
+            stream,
+            progress: (_, _) => { },
+            cancel: TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        // Assert
+        Assert.Equal(RestResult.Success, response.RestResult);
+        Assert.Equal(256, stream.Length);
+        Assert.True(stream.FlushCount > 0);
     }
 
     [Fact]

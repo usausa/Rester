@@ -83,16 +83,23 @@ public sealed class RestConfig
     // Serializer for object
     public ISerializer Serializer { get; set; }
 
-    // Content-Encoding
-    public ContentEncoding ContentEncoding { get; set; }
-
-    // Download/Upload buffer size
+    // Download/Upload buffer size (must be 1 or greater)
     public int TransferBufferSize { get; set; }
+
+    // Serialize post content directly to the request stream (default: true)
+    // When true, the request is sent without Content-Length (chunked transfer encoding)
+    // Set false to buffer the serialized content in memory and send with Content-Length
+    public bool PostContentStreaming { get; set; }
 
     // Download content length missing handler
     public Func<ILengthResolveContext, long?> LengthResolver { get; set; }
+
+    // Default Content-Type for upload
+    public string DefaultUploadContentType { get; set; }
 }
 ```
+
+Configure `RestConfig.Default` once at application startup and do not change it afterwards. The instance is shared and not synchronized, so changing it while requests are running can cause inconsistent behavior.
 
 Serializer config for Json.NET.
 
@@ -212,6 +219,9 @@ public static async Task<IRestResponse> DownloadAsync(
 ```
 
 ### Upload
+
+Streams passed by the caller (`UploadAsync(Stream)` and `MultipartUploadEntry.Stream`) are NOT disposed by the library.
+The caller owns these streams and is responsible for disposing them. Filename overloads open and dispose their own `FileStream` internally.
 
 ```csharp
 public static Task<IRestResponse> MultipartUploadAsync(

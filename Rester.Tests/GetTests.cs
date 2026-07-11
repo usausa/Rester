@@ -63,6 +63,37 @@ public sealed class GetTests
     }
 
     [Fact]
+    public async Task GetLargeJsonSuccess()
+    {
+        // Arrange
+        var client = fixture.CreateClient();
+        var config = MakeConfig();
+
+        // Act
+        var response = await client.GetAsync<ListResponse>(config, "/large-list?count=5000", cancel: TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        // Assert
+        Assert.Equal(RestResult.Success, response.RestResult);
+        Assert.Equal(5000, response.Content?.Entries?.Length);
+        Assert.Equal(5000, response.Content?.Entries?[^1].No);
+    }
+
+    [Fact]
+    public async Task GetCancelDuringBodyReturnsCancel()
+    {
+        // Arrange
+        var client = fixture.CreateClient();
+        var config = MakeConfig();
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(300));
+
+        // Act
+        var response = await client.GetAsync<ListResponse>(config, "/slow-json", cancel: cts.Token).ConfigureAwait(true);
+
+        // Assert
+        Assert.Equal(RestResult.Cancel, response.RestResult);
+    }
+
+    [Fact]
     public async Task GetTextSuccessContentIsDefault()
     {
         // Arrange

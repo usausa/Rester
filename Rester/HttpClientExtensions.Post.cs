@@ -34,29 +34,37 @@ public static partial class HttpClientExtensions
         CancellationToken cancel = default)
     {
         HttpResponseMessage? response = null;
+        SerializeContent? serializeContent = null;
 #pragma warning disable CA1031
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, path);
-#pragma warning disable CA2007
-            await using var stream = new MemoryStream();
-#pragma warning restore CA2007
 
-            ProcessHeaders(request, headers);
-
-            try
-            {
-                await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
-            }
-
-            stream.Seek(0, SeekOrigin.Begin);
+            HttpContent content;
 #pragma warning disable CA2000
-            var content = (HttpContent)new StreamContent(stream);
+            if (config.PostContentStreaming)
+            {
+                serializeContent = new SerializeContent((stream, token) => config.Serializer.SerializeAsync(stream, parameter, token), cancel);
+                content = serializeContent;
+            }
+            else
+            {
+                var stream = new MemoryStream();
+                try
+                {
+                    await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
+                }
+                catch (Exception e) when (e is not OperationCanceledException)
+                {
+                    await stream.DisposeAsync().ConfigureAwait(false);
+                    return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
+                }
+
+                stream.Seek(0, SeekOrigin.Begin);
+                content = new StreamContent(stream);
+            }
 #pragma warning restore CA2000
+
             content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
             if (compress != CompressOption.None)
             {
@@ -65,12 +73,19 @@ public static partial class HttpClientExtensions
 
             request.Content = content;
 
-            response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+            ProcessHeaders(request, headers);
+
+            response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
             return new RestResponse<object>(response.IsSuccessStatusCode ? RestResult.Success : RestResult.HttpError, response.StatusCode, null, default);
         }
         catch (Exception e)
         {
-            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0);
+            if ((serializeContent?.SerializeError is { } serializeError) && (e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            {
+                return new RestResponse<object>(RestResult.SerializeError, 0, serializeError, default);
+            }
+
+            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0, cancel);
         }
         finally
         {
@@ -104,29 +119,37 @@ public static partial class HttpClientExtensions
         CancellationToken cancel = default)
     {
         HttpResponseMessage? response = null;
+        SerializeContent? serializeContent = null;
 #pragma warning disable CA1031
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, path);
-#pragma warning disable CA2007
-            await using var stream = new MemoryStream();
-#pragma warning restore CA2007
 
-            ProcessHeaders(request, headers);
-
-            try
-            {
-                await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                return new RestResponse<T>(RestResult.SerializeError, 0, e, default);
-            }
-
-            stream.Seek(0, SeekOrigin.Begin);
+            HttpContent content;
 #pragma warning disable CA2000
-            var content = (HttpContent)new StreamContent(stream);
+            if (config.PostContentStreaming)
+            {
+                serializeContent = new SerializeContent((stream, token) => config.Serializer.SerializeAsync(stream, parameter, token), cancel);
+                content = serializeContent;
+            }
+            else
+            {
+                var stream = new MemoryStream();
+                try
+                {
+                    await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
+                }
+                catch (Exception e) when (e is not OperationCanceledException)
+                {
+                    await stream.DisposeAsync().ConfigureAwait(false);
+                    return new RestResponse<T>(RestResult.SerializeError, 0, e, default);
+                }
+
+                stream.Seek(0, SeekOrigin.Begin);
+                content = new StreamContent(stream);
+            }
 #pragma warning restore CA2000
+
             content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
             if (compress != CompressOption.None)
             {
@@ -135,7 +158,9 @@ public static partial class HttpClientExtensions
 
             request.Content = content;
 
-            response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+            ProcessHeaders(request, headers);
+
+            response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -149,14 +174,19 @@ public static partial class HttpClientExtensions
                 var obj = isJson ? await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false) : default;
                 return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
             }
-            catch (Exception e)
+            catch (Exception e) when ((e is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
                 return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
             }
         }
         catch (Exception e)
         {
-            return MakeErrorResponse<T>(e, response?.StatusCode ?? 0);
+            if ((serializeContent?.SerializeError is { } serializeError) && (e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            {
+                return new RestResponse<T>(RestResult.SerializeError, 0, serializeError, default);
+            }
+
+            return MakeErrorResponse<T>(e, response?.StatusCode ?? 0, cancel);
         }
         finally
         {
@@ -188,29 +218,37 @@ public static partial class HttpClientExtensions
         CancellationToken cancel = default)
     {
         HttpResponseMessage? response = null;
+        SerializeContent? serializeContent = null;
 #pragma warning disable CA1031
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, path);
-#pragma warning disable CA2007
-            await using var stream = new MemoryStream();
-#pragma warning restore CA2007
 
-            ProcessHeaders(request, headers);
-
-            try
-            {
-                await config.Serializer.SerializeAsync(stream, parameter, requestTypeInfo, cancel).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
-            }
-
-            stream.Seek(0, SeekOrigin.Begin);
+            HttpContent content;
 #pragma warning disable CA2000
-            var content = (HttpContent)new StreamContent(stream);
+            if (config.PostContentStreaming)
+            {
+                serializeContent = new SerializeContent((stream, token) => config.Serializer.SerializeAsync(stream, parameter, requestTypeInfo, token), cancel);
+                content = serializeContent;
+            }
+            else
+            {
+                var stream = new MemoryStream();
+                try
+                {
+                    await config.Serializer.SerializeAsync(stream, parameter, requestTypeInfo, cancel).ConfigureAwait(false);
+                }
+                catch (Exception e) when (e is not OperationCanceledException)
+                {
+                    await stream.DisposeAsync().ConfigureAwait(false);
+                    return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
+                }
+
+                stream.Seek(0, SeekOrigin.Begin);
+                content = new StreamContent(stream);
+            }
 #pragma warning restore CA2000
+
             content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
             if (compress != CompressOption.None)
             {
@@ -219,12 +257,19 @@ public static partial class HttpClientExtensions
 
             request.Content = content;
 
-            response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+            ProcessHeaders(request, headers);
+
+            response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
             return new RestResponse<object>(response.IsSuccessStatusCode ? RestResult.Success : RestResult.HttpError, response.StatusCode, null, default);
         }
         catch (Exception e)
         {
-            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0);
+            if ((serializeContent?.SerializeError is { } serializeError) && (e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            {
+                return new RestResponse<object>(RestResult.SerializeError, 0, serializeError, default);
+            }
+
+            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0, cancel);
         }
         finally
         {
@@ -258,29 +303,37 @@ public static partial class HttpClientExtensions
         CancellationToken cancel = default)
     {
         HttpResponseMessage? response = null;
+        SerializeContent? serializeContent = null;
 #pragma warning disable CA1031
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, path);
-#pragma warning disable CA2007
-            await using var stream = new MemoryStream();
-#pragma warning restore CA2007
 
-            ProcessHeaders(request, headers);
-
-            try
-            {
-                await config.Serializer.SerializeAsync(stream, parameter, requestTypeInfo, cancel).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                return new RestResponse<TResponse>(RestResult.SerializeError, 0, e, default);
-            }
-
-            stream.Seek(0, SeekOrigin.Begin);
+            HttpContent content;
 #pragma warning disable CA2000
-            var content = (HttpContent)new StreamContent(stream);
+            if (config.PostContentStreaming)
+            {
+                serializeContent = new SerializeContent((stream, token) => config.Serializer.SerializeAsync(stream, parameter, requestTypeInfo, token), cancel);
+                content = serializeContent;
+            }
+            else
+            {
+                var stream = new MemoryStream();
+                try
+                {
+                    await config.Serializer.SerializeAsync(stream, parameter, requestTypeInfo, cancel).ConfigureAwait(false);
+                }
+                catch (Exception e) when (e is not OperationCanceledException)
+                {
+                    await stream.DisposeAsync().ConfigureAwait(false);
+                    return new RestResponse<TResponse>(RestResult.SerializeError, 0, e, default);
+                }
+
+                stream.Seek(0, SeekOrigin.Begin);
+                content = new StreamContent(stream);
+            }
 #pragma warning restore CA2000
+
             content.Headers.ContentType = new MediaTypeHeaderValue(config.Serializer.ContentType);
             if (compress != CompressOption.None)
             {
@@ -289,7 +342,9 @@ public static partial class HttpClientExtensions
 
             request.Content = content;
 
-            response = await client.SendAsync(request, cancel).ConfigureAwait(false);
+            ProcessHeaders(request, headers);
+
+            response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -303,14 +358,19 @@ public static partial class HttpClientExtensions
                 var obj = isJson ? await config.Serializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), responseTypeInfo, cancel).ConfigureAwait(false) : default;
                 return new RestResponse<TResponse>(RestResult.Success, response.StatusCode, null, obj);
             }
-            catch (Exception e)
+            catch (Exception e) when ((e is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
                 return new RestResponse<TResponse>(RestResult.SerializeError, response.StatusCode, e, default);
             }
         }
         catch (Exception e)
         {
-            return MakeErrorResponse<TResponse>(e, response?.StatusCode ?? 0);
+            if ((serializeContent?.SerializeError is { } serializeError) && (e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            {
+                return new RestResponse<TResponse>(RestResult.SerializeError, 0, serializeError, default);
+            }
+
+            return MakeErrorResponse<TResponse>(e, response?.StatusCode ?? 0, cancel);
         }
         finally
         {

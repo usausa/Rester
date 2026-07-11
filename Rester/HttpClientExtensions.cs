@@ -5,14 +5,16 @@ using System.Net.Http;
 
 public static partial class HttpClientExtensions
 {
-    private static RestResponse<T> MakeErrorResponse<T>(Exception e, HttpStatusCode statusCode)
+    private static RestResponse<T> MakeErrorResponse<T>(Exception e, HttpStatusCode statusCode, CancellationToken cancel)
     {
         return e switch
         {
+            TaskCanceledException { InnerException: TimeoutException } tce => new RestResponse<T>(RestResult.Timeout, statusCode, tce, default),
+            _ when cancel.IsCancellationRequested => new RestResponse<T>(RestResult.Cancel, statusCode, e, default),
             HttpRequestException hre => new RestResponse<T>(RestResult.RequestError, statusCode, hre, default),
             WebException we => new RestResponse<T>(RestResult.HttpError, (we.Response as HttpWebResponse)?.StatusCode ?? statusCode, we, default),
-            TaskCanceledException { InnerException: TimeoutException } tce => new RestResponse<T>(RestResult.Timeout, statusCode, tce, default),
             TaskCanceledException tce => new RestResponse<T>(RestResult.Cancel, statusCode, tce, default),
+            OperationCanceledException oce => new RestResponse<T>(RestResult.Cancel, statusCode, oce, default),
             _ => new RestResponse<T>(RestResult.Unknown, statusCode, e, default)
         };
     }
@@ -28,16 +30,52 @@ public static partial class HttpClientExtensions
         {
             switch (header.Value)
             {
+                case null:
+                    throw new ArgumentException($"Header value is null. name=[{header.Key}]", nameof(headers));
                 case IEnumerable<string> ies:
-                    request.Headers.Add(header.Key, ies);
+                    AddHeader(request, header.Key, ToValues(header.Key, ies));
                     break;
                 case IEnumerable<object> ie:
-                    request.Headers.Add(header.Key, ie.Select(static x => x.ToString()));
+                    AddHeader(request, header.Key, ToValues(header.Key, ie.Select(static x => x.ToString())));
                     break;
                 default:
-                    request.Headers.Add(header.Key, header.Value.ToString());
+                    AddHeader(request, header.Key, header.Value.ToString() ?? string.Empty);
                     break;
             }
+        }
+    }
+
+    private static List<string> ToValues(string name, IEnumerable<string?> values)
+    {
+        var list = new List<string>();
+        foreach (var value in values)
+        {
+            if (value is null)
+            {
+                throw new ArgumentException($"Header value contains null. name=[{name}]");
+            }
+
+            list.Add(value);
+        }
+
+        return list;
+    }
+
+    private static void AddHeader(HttpRequestMessage request, string name, string value)
+    {
+        if (!request.Headers.TryAddWithoutValidation(name, value) &&
+            ((request.Content is null) || !request.Content.Headers.TryAddWithoutValidation(name, value)))
+        {
+            throw new ArgumentException($"Invalid header. name=[{name}]");
+        }
+    }
+
+    private static void AddHeader(HttpRequestMessage request, string name, List<string> values)
+    {
+        if (!request.Headers.TryAddWithoutValidation(name, values) &&
+            ((request.Content is null) || !request.Content.Headers.TryAddWithoutValidation(name, values)))
+        {
+            throw new ArgumentException($"Invalid header. name=[{name}]");
         }
     }
 }

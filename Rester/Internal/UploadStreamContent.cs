@@ -25,6 +25,8 @@ internal sealed class UploadStreamContent : HttpContent
 
     private readonly Stream source;
 
+    private readonly bool disposeSource;
+
     private readonly int bufferSize;
 
     private readonly CompressOption compress;
@@ -33,9 +35,10 @@ internal sealed class UploadStreamContent : HttpContent
 
     private readonly CancellationToken cancel;
 
-    public UploadStreamContent(Stream source, int bufferSize, CompressOption compress, Action<long>? progress, CancellationToken cancel)
+    public UploadStreamContent(Stream source, bool disposeSource, int bufferSize, CompressOption compress, Action<long>? progress, CancellationToken cancel)
     {
         this.source = source;
+        this.disposeSource = disposeSource;
         this.bufferSize = bufferSize;
         this.compress = compress;
         this.progress = progress;
@@ -49,7 +52,7 @@ internal sealed class UploadStreamContent : HttpContent
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing)
+        if (disposing && disposeSource)
         {
             source.Dispose();
         }

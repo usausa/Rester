@@ -68,13 +68,13 @@ public static partial class HttpClientExtensions
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, path);
 
-            ProcessHeaders(request, headers);
-
             var progressProxy = progress is not null ? MakeProgress(stream, progress) : default;
 
-            var content = new UploadStreamContent(stream, config.TransferBufferSize, compress, progressProxy, cancel);
+            var content = new UploadStreamContent(stream, disposeSource: false, config.TransferBufferSize, compress, progressProxy, cancel);
             content.Headers.ContentType = new MediaTypeHeaderValue(contentType ?? config.DefaultUploadContentType);
             request.Content = content;
+
+            ProcessHeaders(request, headers);
 
             response = await client.SendAsync(request, cancel).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
@@ -86,7 +86,7 @@ public static partial class HttpClientExtensions
         }
         catch (Exception e)
         {
-            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0);
+            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0, cancel);
         }
         finally
         {
