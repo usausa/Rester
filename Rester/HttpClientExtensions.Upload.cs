@@ -70,7 +70,7 @@ public static partial class HttpClientExtensions
 
             var progressProxy = progress is not null ? MakeProgress(stream, progress) : default;
 
-            var content = new UploadStreamContent(stream, disposeSource: false, config.TransferBufferSize, compress, progressProxy, cancel);
+            var content = new UploadStreamContent(stream, config.TransferBufferSize, compress, progressProxy, cancel);
             content.Headers.ContentType = new MediaTypeHeaderValue(contentType ?? config.DefaultUploadContentType);
             request.Content = content;
 

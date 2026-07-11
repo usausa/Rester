@@ -3,11 +3,11 @@ namespace Rester;
 using System.Net;
 
 [Collection("Server")]
-public sealed class DownloadTests
+public sealed class DownloadTest
 {
     private readonly ServerFixture fixture;
 
-    public DownloadTests(ServerFixture fixture)
+    public DownloadTest(ServerFixture fixture)
     {
         this.fixture = fixture;
     }

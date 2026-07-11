@@ -23,9 +23,10 @@ internal sealed class UploadStreamContent : HttpContent
         await task(source, compressedStream).ConfigureAwait(false);
     };
 
+    // The source stream is owned by the caller and must not be disposed by this content.
+#pragma warning disable CA2213
     private readonly Stream source;
-
-    private readonly bool disposeSource;
+#pragma warning restore CA2213
 
     private readonly int bufferSize;
 
@@ -35,10 +36,9 @@ internal sealed class UploadStreamContent : HttpContent
 
     private readonly CancellationToken cancel;
 
-    public UploadStreamContent(Stream source, bool disposeSource, int bufferSize, CompressOption compress, Action<long>? progress, CancellationToken cancel)
+    public UploadStreamContent(Stream source, int bufferSize, CompressOption compress, Action<long>? progress, CancellationToken cancel)
     {
         this.source = source;
-        this.disposeSource = disposeSource;
         this.bufferSize = bufferSize;
         this.compress = compress;
         this.progress = progress;
@@ -48,16 +48,6 @@ internal sealed class UploadStreamContent : HttpContent
         {
             Headers.ContentEncoding.Add(compress.ToContentEncoding());
         }
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing && disposeSource)
-        {
-            source.Dispose();
-        }
-
-        base.Dispose(disposing);
     }
 
     protected override bool TryComputeLength(out long length)

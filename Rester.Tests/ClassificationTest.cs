@@ -1,11 +1,11 @@
 namespace Rester;
 
 [Collection("Server")]
-public sealed class ClassificationTests
+public sealed class ClassificationTest
 {
     private readonly ServerFixture fixture;
 
-    public ClassificationTests(ServerFixture fixture)
+    public ClassificationTest(ServerFixture fixture)
     {
         this.fixture = fixture;
     }

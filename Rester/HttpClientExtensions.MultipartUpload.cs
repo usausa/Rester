@@ -115,7 +115,7 @@ public static partial class HttpClientExtensions
             foreach (var upload in entries)
             {
 #pragma warning disable CA2000
-                var content = new UploadStreamContent(upload.Stream, disposeSource: false, config.TransferBufferSize, upload.Compress, progressProxy, cancel);
+                var content = new UploadStreamContent(upload.Stream, config.TransferBufferSize, upload.Compress, progressProxy, cancel);
                 content.Headers.ContentType = new MediaTypeHeaderValue(upload.ContentType ?? config.DefaultUploadContentType);
                 multipart.Add(content, upload.Name, upload.FileName);
 #pragma warning restore CA2000

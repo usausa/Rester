@@ -1,7 +1,7 @@
 namespace Rester;
 
 [Collection("Server")]
-public sealed class PostTests
+public sealed class PostTest
 {
     //--------------------------------------------------------------------------------
     // Test
@@ -9,7 +9,7 @@ public sealed class PostTests
 
     private readonly ServerFixture fixture;
 
-    public PostTests(ServerFixture fixture)
+    public PostTest(ServerFixture fixture)
     {
         this.fixture = fixture;
     }
@@ -194,7 +194,8 @@ public sealed class PostTests
         // Cancellation is requested by the handler before the request content is copied,
         // verifying that CompressedContent propagates the cancellation token
         using var cts = new CancellationTokenSource();
-        using var handler = new DrainHandler(() => cts.Cancel());
+        // ReSharper disable once AccessToDisposedClosure
+        using var handler = new DrainHandler(cts.Cancel);
         using var client = new HttpClient(handler, disposeHandler: false);
         client.BaseAddress = new Uri("http://localhost/");
         var config = MakeConfig();
@@ -213,7 +214,8 @@ public sealed class PostTests
     {
         // Arrange
         using var cts = new CancellationTokenSource();
-        using var handler = new DrainHandler(() => cts.Cancel());
+        // ReSharper disable once AccessToDisposedClosure
+        using var handler = new DrainHandler(cts.Cancel);
         using var client = new HttpClient(handler, disposeHandler: false);
         client.BaseAddress = new Uri("http://localhost/");
         var config = MakeConfig();

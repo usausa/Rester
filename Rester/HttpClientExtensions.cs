@@ -33,10 +33,10 @@ public static partial class HttpClientExtensions
                 case null:
                     throw new ArgumentException($"Header value is null. name=[{header.Key}]", nameof(headers));
                 case IEnumerable<string> ies:
-                    AddHeader(request, header.Key, ToValues(header.Key, ies));
+                    AddHeader(request, header.Key, ToValues(ies));
                     break;
                 case IEnumerable<object> ie:
-                    AddHeader(request, header.Key, ToValues(header.Key, ie.Select(static x => x.ToString())));
+                    AddHeader(request, header.Key, ToValues(ie.Select(static x => x.ToString())));
                     break;
                 default:
                     AddHeader(request, header.Key, header.Value.ToString() ?? string.Empty);
@@ -45,17 +45,12 @@ public static partial class HttpClientExtensions
         }
     }
 
-    private static List<string> ToValues(string name, IEnumerable<string?> values)
+    private static List<string> ToValues(IEnumerable<string?> values)
     {
         var list = new List<string>();
         foreach (var value in values)
         {
-            if (value is null)
-            {
-                throw new ArgumentException($"Header value contains null. name=[{name}]");
-            }
-
-            list.Add(value);
+            list.Add(value ?? string.Empty);
         }
 
         return list;
