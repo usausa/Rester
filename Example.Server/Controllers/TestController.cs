@@ -1,5 +1,7 @@
 namespace Example.Server.Controllers;
 
+using System.Buffers;
+
 using Example.Server.Infrastructure;
 using Example.Server.Models;
 
@@ -54,30 +56,48 @@ public sealed class TestController : BaseApiController
     }
 
     [HttpGet("{filename}")]
-    public IActionResult Download(string filename)
+    public async Task Download(string filename)
     {
         const int size = 100 * 1000 * 1000;
 
         if (filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
         {
-            HttpContext.Response.Headers.Append("X-OriginalLength", $"{size}");
-
-            return File(new byte[size], "application/json");
+            Response.Headers.Append("X-OriginalLength", $"{size}");
+            Response.ContentType = "application/json";
+        }
+        else
+        {
+            Response.ContentType = "application/octet-stream";
         }
 
-        return File(new byte[size], "application/octet-stream");
+        Response.ContentLength = size;
+
+#pragma warning disable CA2007
+        await using var stream = new PatternStream(size);
+#pragma warning restore CA2007
+        await stream.CopyToAsync(Response.Body, HttpContext.RequestAborted).ConfigureAwait(false);
     }
 
     [HttpPost("{filename}")]
     [ReadableBodyStream]
     public async ValueTask<IActionResult> Upload(string filename)
     {
-#pragma warning disable CA2007
-        await using var ms = new MemoryStream();
-#pragma warning restore CA2007
-        await Request.Body.CopyToAsync(ms).ConfigureAwait(false);
+        var length = 0L;
+        var buffer = ArrayPool<byte>.Shared.Rent(64 * 1024);
+        try
+        {
+            int read;
+            while ((read = await Request.Body.ReadAsync(buffer.AsMemory(), HttpContext.RequestAborted).ConfigureAwait(false)) > 0)
+            {
+                length += read;
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
 
-        log.LogDebug("Request filename={Filename}, length={Length}", filename, ms.Length);
+        log.LogDebug("Request filename={Filename}, length={Length}", filename, length);
 
         return Ok();
     }
