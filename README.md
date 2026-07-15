@@ -23,7 +23,7 @@ var result = response.IsSuccess();
 var content = response.Content; 
 
 // Post with compress
-var response = await client.PostAsync("api/test/post", new TestPostRequest { Data = "..." }, compress: true);
+var response = await client.PostAsync("api/test/post", new TestPostRequest { Data = "..." }, compress: CompressOption.Gzip);
 
 // Download with progress
 var response = await client.DownloadAsync(
@@ -37,10 +37,10 @@ var response = await client.DownloadAsync(
 // Multiple file upload with other parameter and progress
 var response = await client.MultipartUploadAsync(
     "api/test/upload",
-    new List<UploadEntry>
+    new List<MultipartUploadEntry>
     {
         new MultipartUploadEntry(stream1, "file1", "test.txt"),
-        new MultipartUploadEntry(stream2, "file2", "test.csv").WithGzip()
+        new MultipartUploadEntry(stream2, "file2", "test.csv", CompressOption.Gzip)
     },
     new Dictionary<string, object>
     {
@@ -80,18 +80,21 @@ Rester config.
 ```csharp
 public sealed class RestConfig
 {
-    // Serializer for object
+    // Shared default configuration
+    public static RestConfig Default { get; }
+
+    // Serializer for request/response body
     public ISerializer Serializer { get; set; }
 
-    // Download/Upload buffer size (must be 1 or greater)
+    // Download/Upload buffer size (must be 1 or greater, default: 16 KiB)
     public int TransferBufferSize { get; set; }
 
-    // Serialize post content directly to the request stream (default: true)
-    // When true, the request is sent without Content-Length (chunked transfer encoding)
-    // Set false to buffer the serialized content in memory and send with Content-Length
+    // Serialize POST content directly to the request stream (default: true).
+    // When true, the request is sent without Content-Length (chunked transfer encoding).
+    // Set false to buffer the serialized content in memory and send with Content-Length.
     public bool PostContentStreaming { get; set; }
 
-    // Download content length missing handler
+    // Handler to resolve content length when the response has no Content-Length (for download progress)
     public Func<ILengthResolveContext, long?> LengthResolver { get; set; }
 
     // Default Content-Type for upload
@@ -101,26 +104,26 @@ public sealed class RestConfig
 
 Configure `RestConfig.Default` once at application startup and do not change it afterwards. The instance is shared and not synchronized, so changing it while requests are running can cause inconsistent behavior.
 
-Serializer config for Json.NET.
+Serializer config (System.Text.Json).
 
 ```csharp
 public static RestConfig UseJsonSerializer(this RestConfig config);
 
-public static RestConfig UseJsonSerializer(this RestConfig config, Action<JsonSerializerConfig> action);
+public static RestConfig UseJsonSerializer(this RestConfig config, Action<JsonSerializerOptions> action);
+
+public static RestConfig UseJsonSerializer(this RestConfig config, JsonSerializerContext context, string contentType = "application/json");
 ```
 
-Json.NET config default.
+Serializer config default.
 
 ```csharp
 public sealed class JsonSerializerConfig
 {
     public string ContentType { get; set; } = "application/json";
 
-    public JsonSerializerSettings Settings { get; } = new JsonSerializerSettings
+    public JsonSerializerOptions Options { get; } = new()
     {
-        ContractResolver = new CamelCasePropertyNamesContractResolver(),
-        DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-        DateFormatHandling = DateFormatHandling.IsoDateFormat
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 }
 ```
@@ -128,95 +131,86 @@ public sealed class JsonSerializerConfig
 ### Get
 
 ```csharp
-public static Task<IRestResponse<T>> GetAsync<T>(
+public static ValueTask<IRestResponse<T>> GetAsync<T>(
     this HttpClient client,
     string path,
-    IDictionary<string, object> headers = null,
+    IDictionary<string, object>? headers = null,
     CancellationToken cancel = default);
 
-public static async Task<IRestResponse<T>> GetAsync<T>(
+// Source-generated JsonTypeInfo overload (Native AOT / trimming friendly)
+public static ValueTask<IRestResponse<T>> GetAsync<T>(
     this HttpClient client,
-    RestConfig config,
     string path,
-    IDictionary<string, object> headers = null,
+    JsonTypeInfo<T> typeInfo,
+    IDictionary<string, object>? headers = null,
     CancellationToken cancel = default);
 ```
+
+Each method also has an overload that takes an explicit `RestConfig config` as the second argument.
 
 ### Post
 
 ```csharp
-public static Task<IRestResponse> PostAsync(
+public static ValueTask<IRestResponse> PostAsync(
     this HttpClient client,
     string path,
     object parameter,
-    IDictionary<string, object> headers = null,
-    bool compress = false,
+    IDictionary<string, object>? headers = null,
+    CompressOption compress = CompressOption.None,
     CancellationToken cancel = default);
 
-public static async Task<IRestResponse> PostAsync(
+public static ValueTask<IRestResponse<T>> PostAsync<T>(
     this HttpClient client,
-    RestConfig config,
     string path,
     object parameter,
-    IDictionary<string, object> headers = null,
-    bool compress = false,
+    IDictionary<string, object>? headers = null,
+    CompressOption compress = CompressOption.None,
     CancellationToken cancel = default);
 
-public static Task<IRestResponse<T>> PostAsync<T>(
+// Source-generated JsonTypeInfo overloads (Native AOT / trimming friendly)
+public static ValueTask<IRestResponse> PostAsync<TRequest>(
     this HttpClient client,
     string path,
-    object parameter,
-    IDictionary<string, object> headers = null,
-    bool compress = false,
+    TRequest parameter,
+    JsonTypeInfo<TRequest> requestTypeInfo,
+    IDictionary<string, object>? headers = null,
+    CompressOption compress = CompressOption.None,
     CancellationToken cancel = default);
 
-public static async Task<IRestResponse<T>> PostAsync<T>(
+public static ValueTask<IRestResponse<TResponse>> PostAsync<TRequest, TResponse>(
     this HttpClient client,
-    RestConfig config,
     string path,
-    object parameter,
-    IDictionary<string, object> headers = null,
-    bool compress = false,
+    TRequest parameter,
+    JsonTypeInfo<TRequest> requestTypeInfo,
+    JsonTypeInfo<TResponse> responseTypeInfo,
+    IDictionary<string, object>? headers = null,
+    CompressOption compress = CompressOption.None,
     CancellationToken cancel = default);
-    ```
+```
+
+Each method also has an overload that takes an explicit `RestConfig config` as the second argument.
 
 ### Download
 
 ```csharp
-public static Task<IRestResponse> DownloadAsync(
+public static ValueTask<IRestResponse> DownloadAsync(
     this HttpClient client,
     string path,
     string filename,
-    IDictionary<string, object> headers = null,
-    Action<long, long> progress = null,
+    IDictionary<string, object>? headers = null,
+    Action<long, long>? progress = null,
     CancellationToken cancel = default);
 
-public static async Task<IRestResponse> DownloadAsync(
-    this HttpClient client,
-    RestConfig config,
-    string path,
-    string filename,
-    IDictionary<string, object> headers = null,
-    Action<long, long> progress = null,
-    CancellationToken cancel = default);
-
-public static Task<IRestResponse> DownloadAsync(
+public static ValueTask<IRestResponse> DownloadAsync(
     this HttpClient client,
     string path,
     Stream stream,
-    IDictionary<string, object> headers = null,
-    Action<long, long> progress = null,
-    CancellationToken cancel = default);
-
-public static async Task<IRestResponse> DownloadAsync(
-    this HttpClient client,
-    RestConfig config,
-    string path,
-    Stream stream,
-    IDictionary<string, object> headers = null,
-    Action<long, long> progress = null,
+    IDictionary<string, object>? headers = null,
+    Action<long, long>? progress = null,
     CancellationToken cancel = default);
 ```
+
+Each method also has an overload that takes an explicit `RestConfig config` as the second argument.
 
 ### Upload
 
@@ -224,73 +218,49 @@ Streams passed by the caller (`UploadAsync(Stream)` and `MultipartUploadEntry.St
 The caller owns these streams and is responsible for disposing them. Filename overloads open and dispose their own `FileStream` internally.
 
 ```csharp
-public static Task<IRestResponse> MultipartUploadAsync(
+public static ValueTask<IRestResponse> UploadAsync(
+    this HttpClient client,
+    string path,
+    string filename,
+    IDictionary<string, object>? headers = null,
+    string? contentType = null,
+    CompressOption compress = CompressOption.None,
+    Action<long, long>? progress = null,
+    CancellationToken cancel = default);
+
+public static ValueTask<IRestResponse> UploadAsync(
+    this HttpClient client,
+    string path,
+    Stream stream,
+    IDictionary<string, object>? headers = null,
+    string? contentType = null,
+    CompressOption compress = CompressOption.None,
+    Action<long, long>? progress = null,
+    CancellationToken cancel = default);
+
+public static ValueTask<IRestResponse> MultipartUploadAsync(
     this HttpClient client,
     string path,
     Stream stream,
     string name,
     string filename,
-    Func<Stream, Stream, Func<Stream, Stream, Task>, Task> filter = null,
-    IDictionary<string, object> parameters = null,
-    IDictionary<string, object> headers = null,
-    Action<long, long> progress = null,
+    IDictionary<string, object>? parameters = null,
+    IDictionary<string, object>? headers = null,
+    CompressOption compress = CompressOption.None,
+    Action<long, long>? progress = null,
     CancellationToken cancel = default);
 
-public static Task<IRestResponse> MultipartUploadAsync(
-    this HttpClient client,
-    RestConfig config,
-    string path,
-    Stream stream,
-    string name,
-    string filename,
-    Func<Stream, Stream, Func<Stream, Stream, Task>, Task> filter = null,
-    IDictionary<string, object> parameters = null,
-    IDictionary<string, object> headers = null,
-    Action<long, long> progress = null,
-    CancellationToken cancel = default);
-
-public static Task<IRestResponse> MultipartUploadAsync(
+public static ValueTask<IRestResponse> MultipartUploadAsync(
     this HttpClient client,
     string path,
-    string name,
-    string filename,
-    Func<Stream, Stream, Func<Stream, Stream, Task>, Task> filter = null,
-    IDictionary<string, object> parameters = null,
-    IDictionary<string, object> headers = null,
-    Action<long, long> progress = null,
-    CancellationToken cancel = default);
-
-public static async Task<IRestResponse> MultipartUploadAsync(
-    this HttpClient client,
-    RestConfig config,
-    string path,
-    string name,
-    string filename,
-    Func<Stream, Stream, Func<Stream, Stream, Task>, Task> filter = null,
-    IDictionary<string, object> parameters = null,
-    IDictionary<string, object> headers = null,
-    Action<long, long> progress = null,
-    CancellationToken cancel = default);
-
-public static Task<IRestResponse> MultipartUploadAsync(
-    this HttpClient client,
-    string path,
-    IList<UploadEntry> entries,
-    IDictionary<string, object> parameters = null,
-    IDictionary<string, object> headers = null,
-    Action<long, long> progress = null,
-    CancellationToken cancel = default);
-
-public static async Task<IRestResponse> MultipartUploadAsync(
-    this HttpClient client,
-    RestConfig config,
-    string path,
-    IList<UploadEntry> entries,
-    IDictionary<string, object> parameters = null,
-    IDictionary<string, object> headers = null,
-    Action<long, long> progress = null,
+    IList<MultipartUploadEntry> entries,
+    IDictionary<string, object>? parameters = null,
+    IDictionary<string, object>? headers = null,
+    Action<long, long>? progress = null,
     CancellationToken cancel = default);
 ```
+
+Each method also has an overload that takes an explicit `RestConfig config` as the second argument.
 
 ### Custom serializer
 
@@ -299,8 +269,12 @@ public interface ISerializer
 {
     string ContentType { get; }
 
-    string Serialize(object obj);
+    ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel);
 
-    T Deserialize<T>(string json);
+    ValueTask SerializeAsync<T>(Stream stream, T obj, JsonTypeInfo<T> typeInfo, CancellationToken cancel);
+
+    ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancel);
+
+    ValueTask<T?> DeserializeAsync<T>(Stream stream, JsonTypeInfo<T> typeInfo, CancellationToken cancel);
 }
 ```
