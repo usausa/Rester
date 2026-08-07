@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/Example/">
-    <Project Path="Example.Client/Example.Client.csproj" />
+    <Project Path="Example.Client/Example.Client.csproj" DefaultStartup="true" />
     <Project Path="Example.Server/Example.Server.csproj" />
   </Folder>
   <Folder Name="/Library/">
