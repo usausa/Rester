@@ -27,7 +27,7 @@ public sealed class JsonSerializer : ISerializer
 
     public JsonSerializer(JsonSerializerContext context, string contentType = "application/json")
     {
-        options = new JsonSerializerOptions(context.Options);
+        options = context.Options;
         ContentType = contentType;
     }
 

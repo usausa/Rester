@@ -6,7 +6,7 @@ public sealed class RestConfig
 {
     public static RestConfig Default { get; } = new();
 
-    public ISerializer Serializer { get; set; } = default!;
+    public ISerializer Serializer { get; set; } = JsonSerializer.Default;
 
     public int TransferBufferSize { get; set; }
 

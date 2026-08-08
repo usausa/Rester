@@ -17,6 +17,12 @@ internal sealed class CompressedContent : HttpContent
 
         foreach (var header in content.Headers)
         {
+            if (header.Key.Equals("Content-Length", StringComparison.OrdinalIgnoreCase) ||
+                header.Key.Equals("Content-Encoding", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             Headers.TryAddWithoutValidation(header.Key, header.Value);
         }
 

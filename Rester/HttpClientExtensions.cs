@@ -12,7 +12,6 @@ public static partial class HttpClientExtensions
             TaskCanceledException { InnerException: TimeoutException } tce => new RestResponse<T>(RestResult.Timeout, statusCode, tce, default),
             _ when cancel.IsCancellationRequested => new RestResponse<T>(RestResult.Cancel, statusCode, e, default),
             HttpRequestException hre => new RestResponse<T>(RestResult.RequestError, statusCode, hre, default),
-            WebException we => new RestResponse<T>(RestResult.HttpError, (we.Response as HttpWebResponse)?.StatusCode ?? statusCode, we, default),
             TaskCanceledException tce => new RestResponse<T>(RestResult.Cancel, statusCode, tce, default),
             OperationCanceledException oce => new RestResponse<T>(RestResult.Cancel, statusCode, oce, default),
             _ => new RestResponse<T>(RestResult.Unknown, statusCode, e, default)
