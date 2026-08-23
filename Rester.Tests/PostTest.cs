@@ -269,8 +269,6 @@ public sealed class PostTest
     public async Task PostBufferedCompressedCancelReturnsCancel()
     {
         // Arrange
-        // Cancellation is requested by the handler before the request content is copied,
-        // verifying that CompressedContent propagates the cancellation token
         using var cts = new CancellationTokenSource();
         // ReSharper disable once AccessToDisposedClosure
         using var handler = new DrainHandler(cts.Cancel);
@@ -310,8 +308,6 @@ public sealed class PostTest
     public async Task PostDeflateContentEncodingSet()
     {
         // Arrange
-        // Verify that CompressOption.Deflate sets Content-Encoding header properly
-        // via a mock handler (TestServer does not support deflate decompression by default)
         string? capturedEncoding = null;
         using var handler = new TrackingHandler(req =>
         {
