@@ -1,5 +1,10 @@
 namespace Rester;
 
+using System.Text;
+using System.Text.Json.Serialization.Metadata;
+
+using Rester.Serializers;
+
 [Collection("Server")]
 public sealed class PostTest
 {
@@ -148,6 +153,79 @@ public sealed class PostTest
         // Assert
         Assert.Equal(RestResult.Success, response.RestResult);
         Assert.True(capturedLength > 0);
+    }
+
+    [Fact]
+    public async Task PostBufferedLargePayloadSuccess200()
+    {
+        // Arrange
+        var client = fixture.CreateClient();
+        var config = MakeConfig();
+        config.PostContentStreaming = false;
+        var parameter = new
+        {
+            Value = 200,
+            Padding = Enumerable.Range(0, 10000).Select(static i => $"value-{i}").ToArray()
+        };
+
+        // Act
+        var response = await client.PostAsync(config, "/post", parameter, cancel: TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        // Assert
+        Assert.Equal(RestResult.Success, response.RestResult);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostBufferedChunkedSerializerSuccess200()
+    {
+        // Arrange
+        var client = fixture.CreateClient();
+        var config = MakeConfig();
+        config.PostContentStreaming = false;
+        config.Serializer = new ChunkedSerializer($"{{\"Value\":200,\"Padding\":\"{new string('x', 100000)}\"}}");
+
+        // Act
+        var response = await client.PostAsync(config, "/post", new PostRequest { Value = 200 }, cancel: TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        // Assert
+        Assert.Equal(RestResult.Success, response.RestResult);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+    }
+
+    private sealed class ChunkedSerializer : ISerializer
+    {
+        private const int ChunkSize = 64;
+
+        private readonly byte[] payload;
+
+        public string ContentType => "application/json";
+
+        public ChunkedSerializer(string payload)
+        {
+            this.payload = Encoding.UTF8.GetBytes(payload);
+        }
+
+        public ValueTask SerializeAsync<T>(Stream stream, T obj, CancellationToken cancel) =>
+            WriteChunkedAsync(stream, cancel);
+
+        public ValueTask SerializeAsync<T>(Stream stream, T obj, JsonTypeInfo<T> typeInfo, CancellationToken cancel) =>
+            WriteChunkedAsync(stream, cancel);
+
+        public ValueTask<T?> DeserializeAsync<T>(Stream stream, CancellationToken cancel) =>
+            throw new NotSupportedException();
+
+        public ValueTask<T?> DeserializeAsync<T>(Stream stream, JsonTypeInfo<T> typeInfo, CancellationToken cancel) =>
+            throw new NotSupportedException();
+
+        private async ValueTask WriteChunkedAsync(Stream stream, CancellationToken cancel)
+        {
+            for (var offset = 0; offset < payload.Length; offset += ChunkSize)
+            {
+                var size = Math.Min(ChunkSize, payload.Length - offset);
+                await stream.WriteAsync(payload.AsMemory(offset, size), cancel).ConfigureAwait(false);
+            }
+        }
     }
 
     [Fact]

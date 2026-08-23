@@ -49,7 +49,7 @@ public static partial class HttpClientExtensions
             }
             else
             {
-                var stream = new MemoryStream();
+                var stream = new PooledBufferStream();
                 try
                 {
                     await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
@@ -134,7 +134,7 @@ public static partial class HttpClientExtensions
             }
             else
             {
-                var stream = new MemoryStream();
+                var stream = new PooledBufferStream();
                 try
                 {
                     await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
@@ -233,7 +233,7 @@ public static partial class HttpClientExtensions
             }
             else
             {
-                var stream = new MemoryStream();
+                var stream = new PooledBufferStream();
                 try
                 {
                     await config.Serializer.SerializeAsync(stream, parameter, requestTypeInfo, cancel).ConfigureAwait(false);
@@ -318,7 +318,7 @@ public static partial class HttpClientExtensions
             }
             else
             {
-                var stream = new MemoryStream();
+                var stream = new PooledBufferStream();
                 try
                 {
                     await config.Serializer.SerializeAsync(stream, parameter, requestTypeInfo, cancel).ConfigureAwait(false);
