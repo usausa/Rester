@@ -32,9 +32,9 @@ internal sealed class SerializeContent : HttpContent
         {
             await serialize(stream, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception e) when (e is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            SerializeError = e;
+            SerializeError = ex;
             throw;
         }
     }

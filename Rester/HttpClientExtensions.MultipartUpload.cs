@@ -133,9 +133,9 @@ public static partial class HttpClientExtensions
 
             return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0, cancel);
+            return MakeErrorResponse<object>(ex, response?.StatusCode ?? 0, cancel);
         }
         finally
         {

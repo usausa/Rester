@@ -54,10 +54,15 @@ public static partial class HttpClientExtensions
                 {
                     await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
                 }
-                catch (Exception e) when (e is not OperationCanceledException)
+                catch (Exception ex)
                 {
                     await stream.DisposeAsync().ConfigureAwait(false);
-                    return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
+                    if (ex is OperationCanceledException)
+                    {
+                        throw;
+                    }
+
+                    return new RestResponse<object>(RestResult.SerializeError, 0, ex, default);
                 }
 
                 stream.Seek(0, SeekOrigin.Begin);
@@ -78,14 +83,14 @@ public static partial class HttpClientExtensions
             response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
             return new RestResponse<object>(response.IsSuccessStatusCode ? RestResult.Success : RestResult.HttpError, response.StatusCode, null, default);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            if ((serializeContent?.SerializeError is { } serializeError) && (e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            if ((serializeContent?.SerializeError is { } serializeError) && (ex is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
                 return new RestResponse<object>(RestResult.SerializeError, 0, serializeError, default);
             }
 
-            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0, cancel);
+            return MakeErrorResponse<object>(ex, response?.StatusCode ?? 0, cancel);
         }
         finally
         {
@@ -139,10 +144,15 @@ public static partial class HttpClientExtensions
                 {
                     await config.Serializer.SerializeAsync(stream, parameter, cancel).ConfigureAwait(false);
                 }
-                catch (Exception e) when (e is not OperationCanceledException)
+                catch (Exception ex)
                 {
                     await stream.DisposeAsync().ConfigureAwait(false);
-                    return new RestResponse<T>(RestResult.SerializeError, 0, e, default);
+                    if (ex is OperationCanceledException)
+                    {
+                        throw;
+                    }
+
+                    return new RestResponse<T>(RestResult.SerializeError, 0, ex, default);
                 }
 
                 stream.Seek(0, SeekOrigin.Begin);
@@ -174,19 +184,19 @@ public static partial class HttpClientExtensions
                 var obj = isJson ? await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false) : default;
                 return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
             }
-            catch (Exception e) when ((e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            catch (Exception ex) when ((ex is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
-                return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
+                return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, ex, default);
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            if ((serializeContent?.SerializeError is { } serializeError) && (e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            if ((serializeContent?.SerializeError is { } serializeError) && (ex is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
                 return new RestResponse<T>(RestResult.SerializeError, 0, serializeError, default);
             }
 
-            return MakeErrorResponse<T>(e, response?.StatusCode ?? 0, cancel);
+            return MakeErrorResponse<T>(ex, response?.StatusCode ?? 0, cancel);
         }
         finally
         {
@@ -238,10 +248,15 @@ public static partial class HttpClientExtensions
                 {
                     await config.Serializer.SerializeAsync(stream, parameter, requestTypeInfo, cancel).ConfigureAwait(false);
                 }
-                catch (Exception e) when (e is not OperationCanceledException)
+                catch (Exception ex)
                 {
                     await stream.DisposeAsync().ConfigureAwait(false);
-                    return new RestResponse<object>(RestResult.SerializeError, 0, e, default);
+                    if (ex is OperationCanceledException)
+                    {
+                        throw;
+                    }
+
+                    return new RestResponse<object>(RestResult.SerializeError, 0, ex, default);
                 }
 
                 stream.Seek(0, SeekOrigin.Begin);
@@ -262,14 +277,14 @@ public static partial class HttpClientExtensions
             response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
             return new RestResponse<object>(response.IsSuccessStatusCode ? RestResult.Success : RestResult.HttpError, response.StatusCode, null, default);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            if ((serializeContent?.SerializeError is { } serializeError) && (e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            if ((serializeContent?.SerializeError is { } serializeError) && (ex is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
                 return new RestResponse<object>(RestResult.SerializeError, 0, serializeError, default);
             }
 
-            return MakeErrorResponse<object>(e, response?.StatusCode ?? 0, cancel);
+            return MakeErrorResponse<object>(ex, response?.StatusCode ?? 0, cancel);
         }
         finally
         {
@@ -323,10 +338,15 @@ public static partial class HttpClientExtensions
                 {
                     await config.Serializer.SerializeAsync(stream, parameter, requestTypeInfo, cancel).ConfigureAwait(false);
                 }
-                catch (Exception e) when (e is not OperationCanceledException)
+                catch (Exception ex)
                 {
                     await stream.DisposeAsync().ConfigureAwait(false);
-                    return new RestResponse<TResponse>(RestResult.SerializeError, 0, e, default);
+                    if (ex is OperationCanceledException)
+                    {
+                        throw;
+                    }
+
+                    return new RestResponse<TResponse>(RestResult.SerializeError, 0, ex, default);
                 }
 
                 stream.Seek(0, SeekOrigin.Begin);
@@ -358,19 +378,19 @@ public static partial class HttpClientExtensions
                 var obj = isJson ? await config.Serializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), responseTypeInfo, cancel).ConfigureAwait(false) : default;
                 return new RestResponse<TResponse>(RestResult.Success, response.StatusCode, null, obj);
             }
-            catch (Exception e) when ((e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            catch (Exception ex) when ((ex is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
-                return new RestResponse<TResponse>(RestResult.SerializeError, response.StatusCode, e, default);
+                return new RestResponse<TResponse>(RestResult.SerializeError, response.StatusCode, ex, default);
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            if ((serializeContent?.SerializeError is { } serializeError) && (e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            if ((serializeContent?.SerializeError is { } serializeError) && (ex is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
                 return new RestResponse<TResponse>(RestResult.SerializeError, 0, serializeError, default);
             }
 
-            return MakeErrorResponse<TResponse>(e, response?.StatusCode ?? 0, cancel);
+            return MakeErrorResponse<TResponse>(ex, response?.StatusCode ?? 0, cancel);
         }
         finally
         {

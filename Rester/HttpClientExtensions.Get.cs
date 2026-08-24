@@ -48,14 +48,14 @@ public static partial class HttpClientExtensions
                 var obj = isJson ? await config.Serializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), cancel).ConfigureAwait(false) : default;
                 return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
             }
-            catch (Exception e) when ((e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            catch (Exception ex) when ((ex is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
-                return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
+                return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, ex, default);
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return MakeErrorResponse<T>(e, response?.StatusCode ?? 0, cancel);
+            return MakeErrorResponse<T>(ex, response?.StatusCode ?? 0, cancel);
         }
         finally
         {
@@ -104,14 +104,14 @@ public static partial class HttpClientExtensions
                 var obj = isJson ? await config.Serializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(cancel).ConfigureAwait(false), typeInfo, cancel).ConfigureAwait(false) : default;
                 return new RestResponse<T>(RestResult.Success, response.StatusCode, null, obj);
             }
-            catch (Exception e) when ((e is not OperationCanceledException) && !cancel.IsCancellationRequested)
+            catch (Exception ex) when ((ex is not OperationCanceledException) && !cancel.IsCancellationRequested)
             {
-                return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, e, default);
+                return new RestResponse<T>(RestResult.SerializeError, response.StatusCode, ex, default);
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return MakeErrorResponse<T>(e, response?.StatusCode ?? 0, cancel);
+            return MakeErrorResponse<T>(ex, response?.StatusCode ?? 0, cancel);
         }
         finally
         {
