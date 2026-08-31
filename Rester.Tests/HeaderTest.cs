@@ -19,7 +19,7 @@ public sealed class HeaderTest
         string? captured = null;
         using var handler = new TrackingHandler(req =>
         {
-            captured = req.Headers.TryGetValues("X-Custom", out var values) ? string.Join(",", values) : null;
+            captured = req.Headers.TryGetValues("X-Custom", out var values) ? String.Join(",", values) : null;
             return new TrackingResponse(HttpStatusCode.OK, "{\"code\":\"1\"}");
         });
         using var client = new HttpClient(handler, disposeHandler: false);
@@ -45,7 +45,7 @@ public sealed class HeaderTest
         string? captured = null;
         using var handler = new TrackingHandler(req =>
         {
-            captured = req.Headers.TryGetValues("X-Custom", out var values) ? string.Join(",", values) : null;
+            captured = req.Headers.TryGetValues("X-Custom", out var values) ? String.Join(",", values) : null;
             return new TrackingResponse(HttpStatusCode.OK, "{\"code\":\"1\"}");
         });
         using var client = new HttpClient(handler, disposeHandler: false);
@@ -71,7 +71,7 @@ public sealed class HeaderTest
         string? captured = null;
         using var handler = new TrackingHandler(req =>
         {
-            captured = req.Headers.TryGetValues("X-Custom", out var values) ? string.Join(",", values) : null;
+            captured = req.Headers.TryGetValues("X-Custom", out var values) ? String.Join(",", values) : null;
             return new TrackingResponse(HttpStatusCode.OK, "{\"code\":\"1\"}");
         });
         using var client = new HttpClient(handler, disposeHandler: false);

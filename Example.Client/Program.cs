@@ -7,6 +7,7 @@ using Rester;
 
 public static class Program
 {
+#pragma warning disable CA2000
     public static async Task Main()
     {
         RestConfig.Default.UseJsonSerializer(static options =>
@@ -41,14 +42,17 @@ public static class Program
         await client.TestMultipartUploadAsync().ConfigureAwait(false);
         await client.TestUploadMultipleWithParameterAsync().ConfigureAwait(false);
     }
+#pragma warning restore CA2000
 }
 
 public sealed class TestClient : IDisposable
 {
     private readonly HttpClient client;
 
+#pragma warning disable CA2000
     public TestClient(string address)
     {
+#pragma warning disable CA5399
         client = new HttpClient(new HttpClientHandler
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
@@ -57,7 +61,9 @@ public sealed class TestClient : IDisposable
             BaseAddress = new Uri(address),
             Timeout = new TimeSpan(0, 0, 30, 0)
         };
+#pragma warning restore CA5399
     }
+#pragma warning restore CA2000
 
     public void Dispose()
     {

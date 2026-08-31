@@ -177,7 +177,7 @@ public static partial class HttpClientExtensions
                 return new RestResponse<T>(RestResult.HttpError, response.StatusCode, null, default);
             }
 
-            var isJson = response.Content.Headers.ContentType?.MediaType is not null &&
+            var isJson = (response.Content.Headers.ContentType?.MediaType is not null) &&
                          response.Content.Headers.ContentType.MediaType.Contains("json", StringComparison.OrdinalIgnoreCase);
             try
             {
@@ -371,7 +371,7 @@ public static partial class HttpClientExtensions
                 return new RestResponse<TResponse>(RestResult.HttpError, response.StatusCode, null, default);
             }
 
-            var isJson = response.Content.Headers.ContentType?.MediaType is not null &&
+            var isJson = (response.Content.Headers.ContentType?.MediaType is not null) &&
                          response.Content.Headers.ContentType.MediaType.Contains("json", StringComparison.OrdinalIgnoreCase);
             try
             {

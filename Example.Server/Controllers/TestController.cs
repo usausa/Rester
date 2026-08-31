@@ -20,11 +20,13 @@ public sealed class TestController : BaseApiController
         this.log = log;
     }
 
+#pragma warning disable CA1720
     [HttpGet("{code}")]
     public IActionResult Single(string code)
     {
         return Ok(new TestSingleResponse { Code = code, DateTime = DateTimeOffset.UtcNow });
     }
+#pragma warning restore CA1720
 
     [HttpGet]
     public IActionResult List(TestListRequest request)

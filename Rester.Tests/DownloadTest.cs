@@ -50,7 +50,7 @@ public sealed class DownloadTest
         config.LengthResolver = static ctx =>
         {
             var val = ctx.GetValues("X-OriginalLength").FirstOrDefault();
-            return long.TryParse(val, out var len) ? len : null;
+            return Int64.TryParse(val, out var len) ? len : null;
         };
 #pragma warning disable CA2007
         await using var ms = new MemoryStream();

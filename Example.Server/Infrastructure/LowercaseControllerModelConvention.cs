@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 public sealed class LowercaseControllerModelConvention : IControllerModelConvention
 {
+#pragma warning disable CA1308
     public void Apply(ControllerModel controller)
     {
         controller.ControllerName = controller.ControllerName.ToLower(CultureInfo.InvariantCulture);
@@ -14,4 +15,5 @@ public sealed class LowercaseControllerModelConvention : IControllerModelConvent
             action.ActionName = action.ActionName.ToLower(CultureInfo.InvariantCulture);
         }
     }
+#pragma warning restore CA1308
 }

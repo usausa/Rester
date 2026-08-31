@@ -5,6 +5,7 @@ using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 
+#pragma warning disable CA1034
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public sealed class ReadableBodyStreamAttribute : Attribute, IFilterFactory
 {
@@ -23,3 +24,4 @@ public sealed class ReadableBodyStreamAttribute : Attribute, IFilterFactory
         }
     }
 }
+#pragma warning restore CA1034

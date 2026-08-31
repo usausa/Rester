@@ -43,7 +43,7 @@ public sealed class ServerFixture : IAsyncLifetime
             // Accept both "value" (camelCase) and "Value" (PascalCase from JsonSerializer default)
             var found = body.RootElement.TryGetProperty("value", out var valLower) ||
                         body.RootElement.TryGetProperty("Value", out valLower);
-            if (found && valLower.GetInt32() >= 100)
+            if (found && (valLower.GetInt32() >= 100))
             {
                 return Results.Ok(new { message = "ok" });
             }
