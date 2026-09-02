@@ -8,16 +8,11 @@ public sealed class RestConfig
 
     public ISerializer Serializer { get; set; } = JsonSerializer.Default;
 
-    public int TransferBufferSize { get; set; }
+    public int TransferBufferSize { get; set; } = 16 * 1024;
 
     public bool PostContentStreaming { get; set; } = true;
 
     public Func<ILengthResolveContext, long?>? LengthResolver { get; set; }
 
     public string DefaultUploadContentType { get; set; } = "application/octet-stream";
-
-    public RestConfig()
-    {
-        TransferBufferSize = 16 * 1024;
-    }
 }
