@@ -2,7 +2,7 @@ namespace Rester;
 
 using System.Net;
 
-public sealed class DisposeTest
+public sealed class DisposeTests
 {
     private static RestConfig MakeConfig() => new RestConfig().UseJsonSerializer();
 

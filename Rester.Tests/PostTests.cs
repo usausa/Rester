@@ -6,7 +6,7 @@ using System.Text.Json.Serialization.Metadata;
 using Rester.Serializers;
 
 [Collection("Server")]
-public sealed class PostTest
+public sealed class PostTests
 {
     //--------------------------------------------------------------------------------
     // Test
@@ -14,7 +14,7 @@ public sealed class PostTest
 
     private readonly ServerFixture fixture;
 
-    public PostTest(ServerFixture fixture)
+    public PostTests(ServerFixture fixture)
     {
         this.fixture = fixture;
     }

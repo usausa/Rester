@@ -2,7 +2,7 @@ namespace Rester;
 
 using System.Net;
 
-public sealed class HeaderTest
+public sealed class HeaderTests
 {
     //--------------------------------------------------------------------------------
     // Test

@@ -1,7 +1,7 @@
 namespace Rester;
 
 [Collection("Server")]
-public sealed class PoolTest
+public sealed class PoolTests
 {
     //--------------------------------------------------------------------------------
     // Test
@@ -9,7 +9,7 @@ public sealed class PoolTest
 
     private readonly ServerFixture fixture;
 
-    public PoolTest(ServerFixture fixture)
+    public PoolTests(ServerFixture fixture)
     {
         this.fixture = fixture;
     }

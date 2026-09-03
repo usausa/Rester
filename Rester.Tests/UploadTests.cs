@@ -1,7 +1,7 @@
 namespace Rester;
 
 [Collection("Server")]
-public sealed class UploadTest
+public sealed class UploadTests
 {
     //--------------------------------------------------------------------------------
     // Test
@@ -9,7 +9,7 @@ public sealed class UploadTest
 
     private readonly ServerFixture fixture;
 
-    public UploadTest(ServerFixture fixture)
+    public UploadTests(ServerFixture fixture)
     {
         this.fixture = fixture;
     }
