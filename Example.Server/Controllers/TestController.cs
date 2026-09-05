@@ -33,10 +33,12 @@ public sealed class TestController : BaseApiController
     {
         return Ok(new TestListResponse
         {
+#pragma warning disable IDE0028
             Entries = Enumerable
                 .Range(1, Math.Min(request.Count ?? 10, 20))
                 .Select(x => new TestListResponseEntry { No = x, Name = $"{request.Name}-{x}" })
                 .ToArray()
+#pragma warning restore IDE0028
         });
     }
 
