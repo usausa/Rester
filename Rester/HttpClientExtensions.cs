@@ -1,20 +1,21 @@
 namespace Rester;
 
-using System.Net;
 using System.Net.Http;
 
 public static partial class HttpClientExtensions
 {
-    private static RestResponse<T> MakeErrorResponse<T>(Exception e, HttpStatusCode statusCode, CancellationToken cancel)
+    private static RestResponse<T> MakeErrorResponse<T>(Exception e, HttpResponseMessage? response, CancellationToken cancel)
     {
+        var statusCode = response?.StatusCode ?? 0;
+        var headers = response?.Headers;
         return e switch
         {
-            TaskCanceledException { InnerException: TimeoutException } tce => new RestResponse<T>(RestResult.Timeout, statusCode, tce, default),
-            _ when cancel.IsCancellationRequested => new RestResponse<T>(RestResult.Cancel, statusCode, e, default),
-            HttpRequestException hre => new RestResponse<T>(RestResult.RequestError, statusCode, hre, default),
-            TaskCanceledException tce => new RestResponse<T>(RestResult.Cancel, statusCode, tce, default),
-            OperationCanceledException oce => new RestResponse<T>(RestResult.Cancel, statusCode, oce, default),
-            _ => new RestResponse<T>(RestResult.Unknown, statusCode, e, default)
+            TaskCanceledException { InnerException: TimeoutException } tce => new RestResponse<T>(RestResult.Timeout, statusCode, headers, tce, default),
+            _ when cancel.IsCancellationRequested => new RestResponse<T>(RestResult.Cancel, statusCode, headers, e, default),
+            HttpRequestException hre => new RestResponse<T>(RestResult.RequestError, statusCode, headers, hre, default),
+            TaskCanceledException tce => new RestResponse<T>(RestResult.Cancel, statusCode, headers, tce, default),
+            OperationCanceledException oce => new RestResponse<T>(RestResult.Cancel, statusCode, headers, oce, default),
+            _ => new RestResponse<T>(RestResult.Unknown, statusCode, headers, e, default)
         };
     }
 

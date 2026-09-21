@@ -8,38 +8,38 @@ public static partial class HttpClientExtensions
 {
     [RequiresUnreferencedCode("JSON deserialization may require types that cannot be statically analyzed.")]
     [RequiresDynamicCode("JSON deserialization requires dynamic code.")]
-    public static ValueTask<IRestResponse<T>> GetAsync<T>(
+    public static ValueTask<IRestResponse<T>> DeleteAsync<T>(
         this HttpClient client,
         string path,
         IDictionary<string, object>? headers = null,
         CancellationToken cancel = default)
     {
-        return client.GetAsync<T>(RestConfig.Default, path, headers, cancel);
+        return client.DeleteAsync<T>(RestConfig.Default, path, headers, cancel);
     }
 
     [RequiresUnreferencedCode("JSON deserialization may require types that cannot be statically analyzed.")]
     [RequiresDynamicCode("JSON deserialization requires dynamic code.")]
-    public static ValueTask<IRestResponse<T>> GetAsync<T>(
+    public static ValueTask<IRestResponse<T>> DeleteAsync<T>(
         this HttpClient client,
         RestConfig config,
         string path,
         IDictionary<string, object>? headers = null,
         CancellationToken cancel = default)
     {
-        return SendCoreAsync<T>(client, config, HttpMethod.Get, path, headers, cancel);
+        return SendCoreAsync<T>(client, config, HttpMethod.Delete, path, headers, cancel);
     }
 
-    public static ValueTask<IRestResponse<T>> GetAsync<T>(
+    public static ValueTask<IRestResponse<T>> DeleteAsync<T>(
         this HttpClient client,
         string path,
         JsonTypeInfo<T> typeInfo,
         IDictionary<string, object>? headers = null,
         CancellationToken cancel = default)
     {
-        return client.GetAsync(RestConfig.Default, path, typeInfo, headers, cancel);
+        return client.DeleteAsync(RestConfig.Default, path, typeInfo, headers, cancel);
     }
 
-    public static ValueTask<IRestResponse<T>> GetAsync<T>(
+    public static ValueTask<IRestResponse<T>> DeleteAsync<T>(
         this HttpClient client,
         RestConfig config,
         string path,
@@ -47,6 +47,6 @@ public static partial class HttpClientExtensions
         IDictionary<string, object>? headers = null,
         CancellationToken cancel = default)
     {
-        return SendCoreAsync(client, config, HttpMethod.Get, path, typeInfo, headers, cancel);
+        return SendCoreAsync(client, config, HttpMethod.Delete, path, typeInfo, headers, cancel);
     }
 }

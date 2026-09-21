@@ -8,7 +8,7 @@ public static partial class HttpClientExtensions
 {
     [RequiresUnreferencedCode("JSON serialization may require types that cannot be statically analyzed.")]
     [RequiresDynamicCode("JSON serialization requires dynamic code.")]
-    public static ValueTask<IRestResponse> PostAsync(
+    public static ValueTask<IRestResponse> PutAsync(
         this HttpClient client,
         string path,
         object parameter,
@@ -16,12 +16,12 @@ public static partial class HttpClientExtensions
         CompressOption compress = CompressOption.None,
         CancellationToken cancel = default)
     {
-        return client.PostAsync(RestConfig.Default, path, parameter, headers, compress, cancel);
+        return client.PutAsync(RestConfig.Default, path, parameter, headers, compress, cancel);
     }
 
     [RequiresUnreferencedCode("JSON serialization may require types that cannot be statically analyzed.")]
     [RequiresDynamicCode("JSON serialization requires dynamic code.")]
-    public static ValueTask<IRestResponse> PostAsync(
+    public static ValueTask<IRestResponse> PutAsync(
         this HttpClient client,
         RestConfig config,
         string path,
@@ -30,12 +30,12 @@ public static partial class HttpClientExtensions
         CompressOption compress = CompressOption.None,
         CancellationToken cancel = default)
     {
-        return SendContentCoreAsync(client, config, HttpMethod.Post, path, parameter, headers, compress, cancel);
+        return SendContentCoreAsync(client, config, HttpMethod.Put, path, parameter, headers, compress, cancel);
     }
 
     [RequiresUnreferencedCode("JSON serialization/deserialization may require types that cannot be statically analyzed.")]
     [RequiresDynamicCode("JSON serialization/deserialization requires dynamic code.")]
-    public static ValueTask<IRestResponse<T>> PostAsync<T>(
+    public static ValueTask<IRestResponse<T>> PutAsync<T>(
         this HttpClient client,
         string path,
         object parameter,
@@ -43,12 +43,12 @@ public static partial class HttpClientExtensions
         CompressOption compress = CompressOption.None,
         CancellationToken cancel = default)
     {
-        return client.PostAsync<T>(RestConfig.Default, path, parameter, headers, compress, cancel);
+        return client.PutAsync<T>(RestConfig.Default, path, parameter, headers, compress, cancel);
     }
 
     [RequiresUnreferencedCode("JSON serialization/deserialization may require types that cannot be statically analyzed.")]
     [RequiresDynamicCode("JSON serialization/deserialization requires dynamic code.")]
-    public static ValueTask<IRestResponse<T>> PostAsync<T>(
+    public static ValueTask<IRestResponse<T>> PutAsync<T>(
         this HttpClient client,
         RestConfig config,
         string path,
@@ -57,10 +57,10 @@ public static partial class HttpClientExtensions
         CompressOption compress = CompressOption.None,
         CancellationToken cancel = default)
     {
-        return SendContentCoreAsync<T>(client, config, HttpMethod.Post, path, parameter, headers, compress, cancel);
+        return SendContentCoreAsync<T>(client, config, HttpMethod.Put, path, parameter, headers, compress, cancel);
     }
 
-    public static ValueTask<IRestResponse> PostAsync<TRequest>(
+    public static ValueTask<IRestResponse> PutAsync<TRequest>(
         this HttpClient client,
         string path,
         TRequest parameter,
@@ -69,10 +69,10 @@ public static partial class HttpClientExtensions
         CompressOption compress = CompressOption.None,
         CancellationToken cancel = default)
     {
-        return client.PostAsync(RestConfig.Default, path, parameter, requestTypeInfo, headers, compress, cancel);
+        return client.PutAsync(RestConfig.Default, path, parameter, requestTypeInfo, headers, compress, cancel);
     }
 
-    public static ValueTask<IRestResponse> PostAsync<TRequest>(
+    public static ValueTask<IRestResponse> PutAsync<TRequest>(
         this HttpClient client,
         RestConfig config,
         string path,
@@ -82,10 +82,10 @@ public static partial class HttpClientExtensions
         CompressOption compress = CompressOption.None,
         CancellationToken cancel = default)
     {
-        return SendContentCoreAsync(client, config, HttpMethod.Post, path, parameter, requestTypeInfo, headers, compress, cancel);
+        return SendContentCoreAsync(client, config, HttpMethod.Put, path, parameter, requestTypeInfo, headers, compress, cancel);
     }
 
-    public static ValueTask<IRestResponse<TResponse>> PostAsync<TRequest, TResponse>(
+    public static ValueTask<IRestResponse<TResponse>> PutAsync<TRequest, TResponse>(
         this HttpClient client,
         string path,
         TRequest parameter,
@@ -95,10 +95,10 @@ public static partial class HttpClientExtensions
         CompressOption compress = CompressOption.None,
         CancellationToken cancel = default)
     {
-        return client.PostAsync(RestConfig.Default, path, parameter, requestTypeInfo, responseTypeInfo, headers, compress, cancel);
+        return client.PutAsync(RestConfig.Default, path, parameter, requestTypeInfo, responseTypeInfo, headers, compress, cancel);
     }
 
-    public static ValueTask<IRestResponse<TResponse>> PostAsync<TRequest, TResponse>(
+    public static ValueTask<IRestResponse<TResponse>> PutAsync<TRequest, TResponse>(
         this HttpClient client,
         RestConfig config,
         string path,
@@ -109,6 +109,6 @@ public static partial class HttpClientExtensions
         CompressOption compress = CompressOption.None,
         CancellationToken cancel = default)
     {
-        return SendContentCoreAsync(client, config, HttpMethod.Post, path, parameter, requestTypeInfo, responseTypeInfo, headers, compress, cancel);
+        return SendContentCoreAsync(client, config, HttpMethod.Put, path, parameter, requestTypeInfo, responseTypeInfo, headers, compress, cancel);
     }
 }

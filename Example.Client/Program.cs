@@ -30,6 +30,15 @@ public static class Program
         await client.TestPostAsync().ConfigureAwait(false);
         await client.TestPostWithCompressAsync().ConfigureAwait(false);
 
+        // Put
+        await client.TestPutAsync().ConfigureAwait(false);
+
+        // Patch
+        await client.TestPatchAsync().ConfigureAwait(false);
+
+        // Delete
+        await client.TestDeleteAsync().ConfigureAwait(false);
+
         // Download
         await client.TestDownloadAsync().ConfigureAwait(false);
         await client.TestDownloadWithCompressAsync().ConfigureAwait(false);
@@ -138,6 +147,56 @@ public sealed class TestClient : IDisposable
         Console.WriteLine("==== PostAsync:Compress ====");
 
         var response = await client.PostAsync("test/post", new TestPostRequest { Value = 100, Text = "うさうさ" }, compress: CompressOption.Gzip).ConfigureAwait(false);
+
+        Console.WriteLine($"Result: {response.RestResult}");
+        Console.WriteLine($"StatusCode: {response.StatusCode}");
+    }
+
+    // Put
+
+    public async ValueTask TestPutAsync()
+    {
+        Console.WriteLine("==== PutAsync ====");
+
+        // BadRequest
+        var response = await client.PutAsync<TestSingleResponse>("test/put/123", new TestPostRequest { Value = 1, Text = "うさうさ" }).ConfigureAwait(false);
+
+        Console.WriteLine($"Result: {response.RestResult}");
+        Console.WriteLine($"StatusCode: {response.StatusCode}");
+
+        response = await client.PutAsync<TestSingleResponse>("test/put/123", new TestPostRequest { Value = 100, Text = "うさうさ" }).ConfigureAwait(false);
+
+        Console.WriteLine($"Result: {response.RestResult}");
+        Console.WriteLine($"StatusCode: {response.StatusCode}");
+        Console.WriteLine($"Content.Code: {response.Content?.Code}");
+    }
+
+    // Patch
+
+    public async ValueTask TestPatchAsync()
+    {
+        Console.WriteLine("==== PatchAsync ====");
+
+        var response = await client.PatchAsync<TestSingleResponse>("test/patch/123", new TestPostRequest { Value = 100, Text = "うさうさ" }).ConfigureAwait(false);
+
+        Console.WriteLine($"Result: {response.RestResult}");
+        Console.WriteLine($"StatusCode: {response.StatusCode}");
+        Console.WriteLine($"Content.Code: {response.Content?.Code}");
+    }
+
+    // Delete
+
+    public async ValueTask TestDeleteAsync()
+    {
+        Console.WriteLine("==== SendAsync:Delete ====");
+
+        // NotFound
+        var response = await client.SendAsync(HttpMethod.Delete, "test/delete/0").ConfigureAwait(false);
+
+        Console.WriteLine($"Result: {response.RestResult}");
+        Console.WriteLine($"StatusCode: {response.StatusCode}");
+
+        response = await client.SendAsync(HttpMethod.Delete, "test/delete/123").ConfigureAwait(false);
 
         Console.WriteLine($"Result: {response.RestResult}");
         Console.WriteLine($"StatusCode: {response.StatusCode}");

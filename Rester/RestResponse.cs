@@ -1,12 +1,15 @@
 namespace Rester;
 
 using System.Net;
+using System.Net.Http.Headers;
 
 public interface IRestResponse
 {
     RestResult RestResult { get; }
 
     HttpStatusCode StatusCode { get; }
+
+    HttpResponseHeaders? Headers { get; }
 
     Exception? InnerException { get; }
 }
@@ -22,14 +25,17 @@ public sealed class RestResponse<T> : IRestResponse<T>
 
     public HttpStatusCode StatusCode { get; }
 
+    public HttpResponseHeaders? Headers { get; }
+
     public Exception? InnerException { get; }
 
     public T? Content { get; }
 
-    public RestResponse(RestResult restResult, HttpStatusCode statusCode, Exception? innerException, T? content)
+    public RestResponse(RestResult restResult, HttpStatusCode statusCode, HttpResponseHeaders? headers, Exception? innerException, T? content)
     {
         RestResult = restResult;
         StatusCode = statusCode;
+        Headers = headers;
         InnerException = innerException;
         Content = content;
     }

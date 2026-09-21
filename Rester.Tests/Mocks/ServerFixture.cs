@@ -51,6 +51,38 @@ public sealed class ServerFixture : IAsyncLifetime
             return Results.Json(new { error = "bad value" }, statusCode: 400);
         });
 
+        app.MapPut("/put", async (HttpRequest request) =>
+        {
+            var body = await JsonDocument.ParseAsync(request.Body).ConfigureAwait(true);
+            var found = body.RootElement.TryGetProperty("value", out var valLower) ||
+                        body.RootElement.TryGetProperty("Value", out valLower);
+            if (found && (valLower.GetInt32() >= 100))
+            {
+                return Results.Ok(new { message = "updated" });
+            }
+
+            return Results.Json(new { error = "bad value" }, statusCode: 400);
+        });
+
+        app.MapPatch("/patch", async (HttpRequest request) =>
+        {
+            var body = await JsonDocument.ParseAsync(request.Body).ConfigureAwait(true);
+            var found = body.RootElement.TryGetProperty("value", out var valLower) ||
+                        body.RootElement.TryGetProperty("Value", out valLower);
+            if (found && (valLower.GetInt32() >= 100))
+            {
+                return Results.Ok(new { message = "patched" });
+            }
+
+            return Results.Json(new { error = "bad value" }, statusCode: 400);
+        });
+
+        app.MapDelete("/delete/{id}", (string id) =>
+            id == "missing" ? Results.NotFound() : Results.NoContent());
+
+        app.MapDelete("/delete-json/{id}", (string id) =>
+            Results.Json(new { code = id, value = $"deleted-{id}" }));
+
         app.MapGet("/large-list", (int? count) =>
         {
             var n = Math.Min(count ?? 5000, 10000);

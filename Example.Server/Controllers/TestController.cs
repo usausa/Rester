@@ -59,6 +59,24 @@ public sealed class TestController : BaseApiController
         return request.Value >= 100 ? Ok() : BadRequest();
     }
 
+    [HttpPut("{code}")]
+    public IActionResult Put(string code, [FromBody] TestPostRequest request)
+    {
+        return request.Value >= 100 ? Ok(new TestSingleResponse { Code = code, DateTime = DateTimeOffset.UtcNow }) : BadRequest();
+    }
+
+    [HttpPatch("{code}")]
+    public IActionResult Patch(string code, [FromBody] TestPostRequest request)
+    {
+        return request.Value >= 100 ? Ok(new TestSingleResponse { Code = code, DateTime = DateTimeOffset.UtcNow }) : BadRequest();
+    }
+
+    [HttpDelete("{code}")]
+    public IActionResult Delete(string code)
+    {
+        return code == "0" ? NotFound() : NoContent();
+    }
+
     [HttpGet("{filename}")]
     public async Task Download(string filename)
     {

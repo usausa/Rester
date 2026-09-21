@@ -92,6 +92,73 @@ public sealed class DisposeTests
     }
 
     [Fact]
+    public async Task PutSuccessResponseDisposed()
+    {
+        // Arrange
+        using var handler = new TrackingHandler(static _ => new TrackingResponse(HttpStatusCode.OK, null, "text/plain"));
+        using var client = new HttpClient(handler, disposeHandler: false);
+        client.BaseAddress = new Uri("http://localhost/");
+        var config = MakeConfig();
+
+        // Act
+        await client.PutAsync(config, "/put", new PostRequest { Value = 200 }, cancel: TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        // Assert
+        Assert.NotNull(handler.LastResponse);
+        Assert.True(handler.LastResponse.WasDisposed);
+    }
+
+    [Fact]
+    public async Task PatchSuccessResponseDisposed()
+    {
+        // Arrange
+        using var handler = new TrackingHandler(static _ => new TrackingResponse(HttpStatusCode.OK, null, "text/plain"));
+        using var client = new HttpClient(handler, disposeHandler: false);
+        client.BaseAddress = new Uri("http://localhost/");
+        var config = MakeConfig();
+
+        // Act
+        await client.PatchAsync(config, "/patch", new PostRequest { Value = 200 }, cancel: TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        // Assert
+        Assert.NotNull(handler.LastResponse);
+        Assert.True(handler.LastResponse.WasDisposed);
+    }
+
+    [Fact]
+    public async Task SendSuccessResponseDisposed()
+    {
+        // Arrange
+        using var handler = new TrackingHandler(static _ => new TrackingResponse(HttpStatusCode.NoContent, null, "text/plain"));
+        using var client = new HttpClient(handler, disposeHandler: false);
+        client.BaseAddress = new Uri("http://localhost/");
+
+        // Act
+        await client.SendAsync(HttpMethod.Delete, "/delete/1", cancel: TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        // Assert
+        Assert.NotNull(handler.LastResponse);
+        Assert.True(handler.LastResponse.WasDisposed);
+    }
+
+    [Fact]
+    public async Task DeleteSuccessResponseDisposed()
+    {
+        // Arrange
+        using var handler = new TrackingHandler(static _ => new TrackingResponse(HttpStatusCode.OK, "{\"code\":\"1\"}"));
+        using var client = new HttpClient(handler, disposeHandler: false);
+        client.BaseAddress = new Uri("http://localhost/");
+        var config = MakeConfig();
+
+        // Act
+        await client.DeleteAsync<SingleResponse>(config, "/delete-json/1", cancel: TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        // Assert
+        Assert.NotNull(handler.LastResponse);
+        Assert.True(handler.LastResponse.WasDisposed);
+    }
+
+    [Fact]
     public async Task DownloadSuccessResponseDisposed()
     {
         // Arrange

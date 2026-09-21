@@ -79,14 +79,14 @@ public static partial class HttpClientExtensions
             response = await client.SendAsync(request, cancel).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
-                return new RestResponse<object>(RestResult.HttpError, response.StatusCode, null, default);
+                return new RestResponse<object>(RestResult.HttpError, response.StatusCode, response.Headers, null, default);
             }
 
-            return new RestResponse<object>(RestResult.Success, response.StatusCode, null, default);
+            return new RestResponse<object>(RestResult.Success, response.StatusCode, response.Headers, null, default);
         }
         catch (Exception ex)
         {
-            return MakeErrorResponse<object>(ex, response?.StatusCode ?? 0, cancel);
+            return MakeErrorResponse<object>(ex, response, cancel);
         }
         finally
         {
