@@ -6,7 +6,7 @@ internal sealed class PooledBufferStream : Stream
 {
     private const int DefaultCapacity = 4096;
 
-    private byte[] buffer;
+    private byte[] bytes;
 
     private int length;
 
@@ -30,7 +30,7 @@ internal sealed class PooledBufferStream : Stream
 
     public PooledBufferStream(int capacity = DefaultCapacity)
     {
-        buffer = ArrayPool<byte>.Shared.Rent(capacity);
+        bytes = ArrayPool<byte>.Shared.Rent(capacity);
     }
 
     protected override void Dispose(bool disposing)
@@ -38,8 +38,8 @@ internal sealed class PooledBufferStream : Stream
         if (!disposed)
         {
             disposed = true;
-            ArrayPool<byte>.Shared.Return(buffer);
-            buffer = [];
+            ArrayPool<byte>.Shared.Return(bytes);
+            bytes = [];
         }
 
         base.Dispose(disposing);
@@ -49,12 +49,12 @@ internal sealed class PooledBufferStream : Stream
     // Read
     //--------------------------------------------------------------------------------
 
-    public override int Read(byte[] target, int offset, int count)
+    public override int Read(byte[] buffer, int offset, int count)
     {
-        return Read(target.AsSpan(offset, count));
+        return Read(buffer.AsSpan(offset, count));
     }
 
-    public override int Read(Span<byte> target)
+    public override int Read(Span<byte> buffer)
     {
         var remain = length - position;
         if (remain <= 0)
@@ -62,77 +62,77 @@ internal sealed class PooledBufferStream : Stream
             return 0;
         }
 
-        var count = Math.Min(remain, target.Length);
-        buffer.AsSpan(position, count).CopyTo(target);
+        var count = Math.Min(remain, buffer.Length);
+        bytes.AsSpan(position, count).CopyTo(buffer);
         position += count;
         return count;
     }
 
-    public override Task<int> ReadAsync(byte[] target, int offset, int count, CancellationToken cancellationToken)
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
         return cancellationToken.IsCancellationRequested
             ? Task.FromCanceled<int>(cancellationToken)
-            : Task.FromResult(Read(target.AsSpan(offset, count)));
+            : Task.FromResult(Read(buffer.AsSpan(offset, count)));
     }
 
-    public override ValueTask<int> ReadAsync(Memory<byte> target, CancellationToken cancellationToken = default)
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
         return cancellationToken.IsCancellationRequested
             ? ValueTask.FromCanceled<int>(cancellationToken)
-            : new ValueTask<int>(Read(target.Span));
+            : new ValueTask<int>(Read(buffer.Span));
     }
 
     public override int ReadByte()
     {
-        return position < length ? buffer[position++] : -1;
+        return position < length ? bytes[position++] : -1;
     }
 
     //--------------------------------------------------------------------------------
     // Write
     //--------------------------------------------------------------------------------
 
-    public override void Write(byte[] source, int offset, int count)
+    public override void Write(byte[] buffer, int offset, int count)
     {
-        Write(source.AsSpan(offset, count));
+        Write(buffer.AsSpan(offset, count));
     }
 
-    public override void Write(ReadOnlySpan<byte> source)
+    public override void Write(ReadOnlySpan<byte> buffer)
     {
-        EnsureCapacity(position + source.Length);
-        source.CopyTo(buffer.AsSpan(position));
-        position += source.Length;
+        EnsureCapacity(position + buffer.Length);
+        buffer.CopyTo(bytes.AsSpan(position));
+        position += buffer.Length;
         if (position > length)
         {
             length = position;
         }
     }
 
-    public override Task WriteAsync(byte[] source, int offset, int count, CancellationToken cancellationToken)
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
         if (cancellationToken.IsCancellationRequested)
         {
             return Task.FromCanceled(cancellationToken);
         }
 
-        Write(source.AsSpan(offset, count));
+        Write(buffer.AsSpan(offset, count));
         return Task.CompletedTask;
     }
 
-    public override ValueTask WriteAsync(ReadOnlyMemory<byte> source, CancellationToken cancellationToken = default)
+    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         if (cancellationToken.IsCancellationRequested)
         {
             return ValueTask.FromCanceled(cancellationToken);
         }
 
-        Write(source.Span);
+        Write(buffer.Span);
         return ValueTask.CompletedTask;
     }
 
     public override void WriteByte(byte value)
     {
         EnsureCapacity(position + 1);
-        buffer[position++] = value;
+        bytes[position++] = value;
         if (position > length)
         {
             length = position;
@@ -163,7 +163,7 @@ internal sealed class PooledBufferStream : Stream
         EnsureCapacity(target);
         if (target > length)
         {
-            buffer.AsSpan(length, target - length).Clear();
+            bytes.AsSpan(length, target - length).Clear();
         }
 
         length = target;
@@ -186,7 +186,7 @@ internal sealed class PooledBufferStream : Stream
 
     private void EnsureCapacity(int required)
     {
-        if (required > buffer.Length)
+        if (required > bytes.Length)
         {
             Grow(required);
         }
@@ -195,9 +195,9 @@ internal sealed class PooledBufferStream : Stream
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
     private void Grow(int required)
     {
-        var newBuffer = ArrayPool<byte>.Shared.Rent(Math.Max(required, buffer.Length * 2));
-        buffer.AsSpan(0, length).CopyTo(newBuffer);
-        ArrayPool<byte>.Shared.Return(buffer);
-        buffer = newBuffer;
+        var newBytes = ArrayPool<byte>.Shared.Rent(Math.Max(required, bytes.Length * 2));
+        bytes.AsSpan(0, length).CopyTo(newBytes);
+        ArrayPool<byte>.Shared.Return(bytes);
+        bytes = newBytes;
     }
 }
