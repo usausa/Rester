@@ -140,6 +140,51 @@ internal sealed class PooledBufferStream : Stream
     }
 
     //--------------------------------------------------------------------------------
+    // CopyTo
+    //--------------------------------------------------------------------------------
+
+    public override void CopyTo(Stream destination, int bufferSize)
+    {
+        if (destination == this)
+        {
+            base.CopyTo(destination, bufferSize);
+            return;
+        }
+
+        ValidateCopyToArguments(destination, bufferSize);
+        ObjectDisposedException.ThrowIf(disposed, this);
+
+        var offset = position;
+        var count = length - offset;
+        if (count > 0)
+        {
+            position = length;
+            destination.Write(bytes, offset, count);
+        }
+    }
+
+    public override async Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+    {
+        if (destination == this)
+        {
+            await base.CopyToAsync(destination, bufferSize, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        ValidateCopyToArguments(destination, bufferSize);
+        ObjectDisposedException.ThrowIf(disposed, this);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var offset = position;
+        var count = length - offset;
+        if (count > 0)
+        {
+            position = length;
+            await destination.WriteAsync(bytes.AsMemory(offset, count), cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    //--------------------------------------------------------------------------------
     // Seek
     //--------------------------------------------------------------------------------
 
